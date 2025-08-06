@@ -1,14 +1,27 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Home from "./components/Home";
+import UploadPage from "./components/UploadPage";
+import DownloadForm from "./components/DownloadForm";
 import "./App.css";
+import DownloadFile from "./components/DownloadFile";
+import LayoutWrapper from "./layout/LayoutWrapper";
+import UsagePage from "./components/UsagePage";
+import PrivacyPolicy from "./components/PrivacyPolicy";
 
 function App() {
   return (
-    <div>
-      <h1>Quickdrop</h1>
-      <p>Fast file sharing with no login.</p>
-    </div>
+    <Router>
+      <LayoutWrapper>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/upload" element={<UploadPage />} />
+          <Route path="/download" element={<DownloadForm />} />
+          <Route path="/download/:fileid" element={<DownloadFile />} />
+          <Route path="/usage" element={<UsagePage />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+        </Routes>
+      </LayoutWrapper>
+    </Router>
   );
 }
 
