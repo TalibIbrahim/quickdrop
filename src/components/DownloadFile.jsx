@@ -51,7 +51,7 @@ const DownloadFile = () => {
   if (loading) return <p>Loading file info...</p>;
   if (error)
     return (
-      <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-4">
+      <div className="min-h-[calc(100vh-160px)]  flex items-center justify-center bg-neutral-50 px-4">
         <p className="text-red-600 text-lg font-medium text-center">{error}</p>
       </div>
     );

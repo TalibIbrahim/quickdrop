@@ -88,7 +88,7 @@ const UploadPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-50 px-4">
+    <div className="min-h-[calc(100vh-160px)] flex flex-col items-center justify-center bg-neutral-50 px-4">
       <h2 className="text-3xl font-bold text-blue-600 mb-6">Upload a File</h2>
 
       {/* Drag-and-Drop Zone */}
