@@ -37,6 +37,8 @@ const UploadPage = () => {
       return;
     }
 
+    console.log(import.meta.env.VITE_BACKEND_URL, "BACKEND URL");
+
     // turn on the loading state if true and empty the error state (just in case)
     setLoading(true);
     setError("");
