@@ -46,10 +46,13 @@ const UploadPage = () => {
     formData.append("file", file);
 
     try {
-      const res = await fetch(`${process.env.BACKEND_URL}/api/files/upload`, {
-        method: "POST",
-        body: formData,
-      });
+      const res = await fetch(
+        `${import.meta.env.BACKEND_URL}/api/files/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       // if faced an error during upload throw this error
 

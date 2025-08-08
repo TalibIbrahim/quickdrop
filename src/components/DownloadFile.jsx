@@ -30,7 +30,7 @@ const DownloadFile = () => {
     }
   };
 
-  `${process.env.BACKEND_URL}/api/files/${fileid}`;
+  `${import.meta.env.BACKEND_URL}/api/files/${fileid}`;
 
   useEffect(() => {
     async function fetchFile() {
