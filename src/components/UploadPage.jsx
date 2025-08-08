@@ -188,11 +188,27 @@ const UploadPage = () => {
         <div className="mt-6 flex flex-col items-center gap-2">
           <span className="text-gray-700 font-medium">Scan to download</span>
           <div className="bg-white p-4 rounded shadow">
+            {typeof window !== "undefined" &&
+              console.log(
+                "DOWNLOAD LINK IS: ",
+                `${window.location.origin}/download/${uploadCode}`
+              )}
             <QRCode
               value={`${window.location.origin}/download/${uploadCode}`}
               size={150}
             />
           </div>
+          <p className="text-sm text-gray-600 mt-3 text-center break-all">
+            Download Link:{" "}
+            <a
+              href={`${window.location.origin}/download/${uploadCode}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 underline"
+            >
+              {`${window.location.origin}/download/${uploadCode}`}
+            </a>
+          </p>
         </div>
       )}
 
