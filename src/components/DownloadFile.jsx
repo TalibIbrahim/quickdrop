@@ -34,7 +34,7 @@ const DownloadFile = () => {
     async function fetchFile() {
       try {
         const res = await fetch(
-          `${import.meta.env.BACKEND_URL}/api/files/${fileid}`
+          `${import.meta.env.VITE_BACKEND_URL}/api/files/${fileid}`
         );
 
         if (!res.ok) throw new Error("File not found");
