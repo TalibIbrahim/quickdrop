@@ -30,13 +30,11 @@ const DownloadFile = () => {
     }
   };
 
-  `${import.meta.env.VITE_BACKEND_URL}/api/files/${fileid}`;
-
   useEffect(() => {
     async function fetchFile() {
       try {
         const res = await fetch(
-          `${process.env.BACKEND_URL}/api/files/${fileid}`
+          `${import.meta.env.BACKEND_URL}/api/files/${fileid}`
         );
 
         if (!res.ok) throw new Error("File not found");
@@ -53,13 +51,15 @@ const DownloadFile = () => {
   }, [fileid]);
 
   if (loading) return <p>Loading file info...</p>;
-  if (error)
+  if (error) {
+    console.error(error);
+
     return (
       <div className="min-h-[calc(100vh-160px)]  flex items-center justify-center bg-neutral-50 px-4">
         <p className="text-red-600 text-lg font-medium text-center">{error}</p>
       </div>
     );
-
+  }
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-50 px-4">
       <h2 className="text-3xl font-bold text-blue-600 mb-4 cursor-pointer">
