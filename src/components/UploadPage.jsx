@@ -46,7 +46,7 @@ const UploadPage = () => {
     formData.append("file", file);
 
     try {
-      const res = await fetch("http://localhost:5000/api/files/upload", {
+      const res = await fetch(`${process.env.BACKEND_URL}/api/files/upload`, {
         method: "POST",
         body: formData,
       });
