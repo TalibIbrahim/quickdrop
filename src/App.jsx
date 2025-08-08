@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Home from "./components/Home";
 import UploadPage from "./components/UploadPage";
 import DownloadForm from "./components/DownloadForm";
@@ -10,19 +10,17 @@ import PrivacyPolicy from "./components/PrivacyPolicy";
 
 function App() {
   return (
-    <Router>
-      <LayoutWrapper>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/upload" element={<UploadPage />} />
-          <Route path="/download" element={<DownloadForm />} />
-          <Route path="/download/:fileid" element={<DownloadFile />} />
-          <Route path="/usage" element={<UsagePage />} />
-          <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </LayoutWrapper>
-    </Router>
+    <LayoutWrapper>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/upload" element={<UploadPage />} />
+        <Route path="/download" element={<DownloadForm />} />
+        <Route path="/download/:fileid" element={<DownloadFile />} />
+        <Route path="/usage" element={<UsagePage />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </LayoutWrapper>
   );
 }
 
