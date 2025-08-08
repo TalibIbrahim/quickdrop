@@ -19,6 +19,7 @@ function App() {
           <Route path="/download/:fileid" element={<DownloadFile />} />
           <Route path="/usage" element={<UsagePage />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </LayoutWrapper>
     </Router>
