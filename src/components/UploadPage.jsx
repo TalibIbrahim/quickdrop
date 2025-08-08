@@ -47,7 +47,7 @@ const UploadPage = () => {
 
     try {
       const res = await fetch(
-        `${import.meta.env.BACKEND_URL}/api/files/upload`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/files/upload`,
         {
           method: "POST",
           body: formData,
