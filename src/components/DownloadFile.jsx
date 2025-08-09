@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { Oval } from "react-loader-spinner";
 
 const DownloadFile = () => {
   const { fileid } = useParams();
@@ -50,7 +51,12 @@ const DownloadFile = () => {
     fetchFile();
   }, [fileid]);
 
-  if (loading) return <p>Loading file info...</p>;
+  if (loading)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Oval height={60} width={60} color="#3B82F6" secondaryColor="#3B82F6" />
+      </div>
+    );
   if (error) {
     console.error(error);
 
