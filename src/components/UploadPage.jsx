@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Oval } from "react-loader-spinner";
 import { FiCopy } from "react-icons/fi";
+import { LuUpload } from "react-icons/lu";
 import QRCode from "react-qr-code";
 import { Link } from "react-router-dom";
 
@@ -92,8 +93,14 @@ const UploadPage = () => {
     setError("");
   };
 
+  const uploadText = (
+    <div className="flex flex-row justify-between gap-3">
+      <span>Upload </span>
+      <LuUpload className="w-5 h-5" strokeWidth={2.5} />
+    </div>
+  );
   return (
-    <div className="min-h-[calc(100vh-160px)] flex flex-col items-center justify-center bg-neutral-50 px-4">
+    <div className="min-h-[calc(100vh-100px)] flex flex-col items-center justify-center bg-gradient-to-b from-white to-neutral-50 px-4">
       <h2 className="text-3xl font-bold text-blue-600 mb-6">Upload a File</h2>
 
       {/* Drag-and-Drop Zone */}
@@ -120,9 +127,9 @@ const UploadPage = () => {
       <label
         htmlFor="fileInput"
         onClick={hasUploaded ? handleReset : undefined}
-        className="cursor-pointer px-6 py-2 mb-4 bg-white border-2 border-blue-500 text-blue-500 rounded-md font-semibold hover:bg-blue-500 hover:text-white transition duration-200"
+        className="cursor-pointer px-7 py-3 mb-4 bg-white border-2 border-blue-500 text-blue-500 rounded-md font-semibold hover:bg-blue-500 hover:shadow-md/50 hover:text-white transition duration-200"
       >
-        {hasUploaded ? "Choose New File" : "Choose File"}
+        {hasUploaded ? "Upload New File" : "Choose File"}
       </label>
 
       {/* Upload Button */}
@@ -139,13 +146,14 @@ const UploadPage = () => {
         <button
           onClick={handleUpload}
           disabled={hasUploaded}
-          className={`px-8 py-3 mb-4 cursor-pointer rounded-md font-semibold transition duration-200 ${
-            hasUploaded
-              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-              : "bg-blue-500 text-white hover:bg-blue-600 hover:shadow-lg"
-          }`}
+          className={`flex items-center gap-2 px-7 py-3 mb-4 cursor-pointer disabled:cursor-not-allowed rounded-md font-semibold transition duration-200 
+    ${
+      hasUploaded
+        ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+        : "bg-blue-500 text-white hover:bg-blue-600 hover:shadow-md/50"
+    }`}
         >
-          {hasUploaded ? "Uploaded!" : "Upload"}
+          {hasUploaded ? "Uploaded!" : uploadText}
         </button>
       )}
 
@@ -198,7 +206,7 @@ const UploadPage = () => {
               size={150}
             />
           </div>
-          <p className="text-sm text-gray-600 mt-3 text-center break-all">
+          <p className="text-sm text-gray-600 mt-8 text-center break-all">
             Download Link:{" "}
             <a
               href={`${window.location.origin}/download/${uploadCode}`}

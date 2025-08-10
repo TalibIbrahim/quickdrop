@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FaArrowRight } from "react-icons/fa";
 
 const DownloadForm = () => {
   const [code, setCode] = useState("");
@@ -13,8 +14,8 @@ const DownloadForm = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-160px)]  flex flex-col items-center justify-center bg-neutral-50 px-4">
-      <h2 className="text-3xl font-bold text-blue-600 mb-6 text-center">
+    <div className="min-h-[calc(100vh-160px)]  flex flex-col items-center justify-center bg-gradient-to-b from-white to-neutral-50 px-4">
+      <h2 className="text-3xl font-semibold text-blue-600 mb-6 text-center">
         Enter File Code to Download
       </h2>
       <form
@@ -23,7 +24,7 @@ const DownloadForm = () => {
       >
         <input
           type="text"
-          placeholder="Enter file code"
+          placeholder="EG: EFGHI"
           value={code}
           onChange={(e) => setCode(e.target.value.toUpperCase())}
           className="px-4 py-2 border-2 border-blue-400 rounded-md uppercase focus:outline-none focus:ring-2 focus:ring-blue-300 text-gray-700 w-64 sm:w-80"
@@ -31,9 +32,12 @@ const DownloadForm = () => {
         />
         <button
           type="submit"
-          className="px-6 py-2 border-2 border-blue-500  bg-blue-500 text-white rounded-md font-semibold hover:bg-blue-600 transition duration-200"
+          className="flex items-center gap-1 w-24 text-center px-6 py-2 bg-blue-500 border-2 border-blue-500 text-white rounded-md font-semibold 
+             transition-all duration-400 ease-in-out cursor-pointer
+             hover:bg-white hover:text-blue-500 hover:border-blue-500 hover:gap-2.5"
         >
-          Go
+          <span>Go</span>
+          <FaArrowRight className="w-4 h-4 " />
         </button>
       </form>
     </div>

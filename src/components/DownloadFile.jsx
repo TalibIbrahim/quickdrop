@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Oval } from "react-loader-spinner";
+import { LuDownload } from "react-icons/lu";
+import ErrorCard from "../../UI/ErrorCard";
 
 const DownloadFile = () => {
   const { fileid } = useParams();
@@ -54,18 +56,17 @@ const DownloadFile = () => {
   if (loading)
     return (
       <div className="flex justify-center items-center h-screen">
-        <Oval height={60} width={60} color="#3B82F6" secondaryColor="#3B82F6" />
+        <Oval height={80} width={80} color="#3B82F6" secondaryColor="#3B82F6" />
       </div>
     );
   if (error) {
     console.error(error);
 
     return (
-      <div className="min-h-[calc(100vh-160px)]  flex items-center justify-center bg-neutral-50 px-4">
-        <p className="text-red-600 text-lg font-medium text-center">{error}</p>
-      </div>
+      <ErrorCard message="File not found. The code may be incorrect, expired, or there was a connection problem." />
     );
   }
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-50 px-4">
       <h2 className="text-3xl font-bold text-blue-600 mb-4 cursor-pointer">
@@ -81,9 +82,10 @@ const DownloadFile = () => {
 
       <button
         onClick={handleDownload}
-        className="px-8 py-3 bg-blue-500 cursor-pointer text-white rounded-md font-semibold hover:bg-blue-600 transition duration-200"
+        className="px-8 py-3 bg-blue-500 cursor-pointer text-white rounded-md font-semibold hover:bg-blue-600 transition duration-200 flex items-center gap-2"
       >
-        Download
+        <span>Download</span>
+        <LuDownload className="w-5 h-5" strokeWidth={2.5} />
       </button>
     </div>
   );

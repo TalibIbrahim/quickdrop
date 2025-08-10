@@ -1,18 +1,18 @@
 import { TypeAnimation } from "react-type-animation";
 import { useNavigate } from "react-router-dom";
+import { LuUpload, LuDownload } from "react-icons/lu";
 
 const Home = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-[calc(100vh-160px)] flex flex-col pt-64 items-center bg-neutral-50 px-4">
+    <div className="min-h-[calc(100vh-160px)] flex flex-col pt-64 items-center bg-gradient-to-b from-white to-neutral-50 px-4">
       <h1
         style={{
-          fontFamily: '"Jost", sans-serif',
-          fontWeight: 700,
-          fontStyle: "italic",
+          fontFamily: '"Poppins", sans-serif',
+          fontWeight: 600,
         }}
-        className="text-6xl font-bold text-blue-600 text-center"
+        className="text-6xl font-bold text-blue-600 text-center "
       >
         QuickDrop
       </h1>
@@ -38,25 +38,27 @@ const Home = () => {
         className="text-blue-500 text-2xl mb-11 mt-4"
       />
 
-      <div className="flex flex-col sm:flex-row gap-6 font-semibold text-xl">
+      <div className="flex flex-col sm:flex-row gap-6 font-medium text-xl">
         {/* Upload Button: Outlined */}
         <button
           onClick={() => navigate("/upload")}
-          className="px-8 py-3 border-2 border-blue-500 text-blue-500 bg-white rounded-lg shadow-md 
-                     hover:bg-blue-500 hover:text-white hover:shadow-lg/30 hover:scale-105 hover:cursor-pointer
-                     transition duration-200"
+          className="flex  items-center gap-2 px-8 py-3 border-2 border-blue-500 text-blue-500 bg-white rounded-lg shadow-md 
+             hover:bg-blue-500 hover:text-white hover:shadow-lg/30 hover:scale-105 hover:cursor-pointer
+             transition duration-200"
         >
-          Upload File
+          <span>Upload File</span>
+          <LuUpload className="w-5 h-5" strokeWidth={2.5} />
         </button>
 
         {/* Download Button: Filled */}
         <button
           onClick={() => navigate("/download")}
-          className="px-8 py-3 bg-blue-500 text-white rounded-lg shadow-md 
-                     hover:bg-blue-600 hover:shadow-lg/30 hover:scale-105 hover:cursor-pointer
-                     transition duration-200"
+          className="flex items-center gap-2 px-8 py-3 bg-blue-500 text-white rounded-lg shadow-md 
+             hover:bg-blue-600 hover:shadow-lg/30 hover:scale-105 hover:cursor-pointer
+             transition duration-200"
         >
-          Download File
+          <span>Download File</span>
+          <LuDownload className="w-5 h-5" strokeWidth={2.5} />
         </button>
       </div>
     </div>
