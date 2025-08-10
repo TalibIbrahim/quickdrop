@@ -24,7 +24,7 @@ const DownloadForm = () => {
       >
         <input
           type="text"
-          placeholder="EG: EFGHI"
+          placeholder="E.G. EFGHIJ"
           value={code}
           onChange={(e) => setCode(e.target.value.toUpperCase())}
           className="px-4 py-2 border-2 border-blue-400 rounded-md uppercase focus:outline-none focus:ring-2 focus:ring-blue-300 text-gray-700 w-64 sm:w-80"
