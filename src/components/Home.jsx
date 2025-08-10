@@ -22,6 +22,10 @@ const Home = () => {
           // Same substring at the start will only be typed once, initially
           "Send files instantly — no login needed",
           1500,
+          "Send files instantly — to anyone, anywhere",
+          1500,
+          "Send files instantly — in just seconds",
+          1500,
           "Lightning fast uploads and downloads!",
           1500,
           "No compression — 100% lossless quality",
