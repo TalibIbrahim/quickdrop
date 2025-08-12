@@ -1,4 +1,9 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+* {
+  @apply transition-colors duration-300 ease-in-out;
+}
 
 body {
   font-family: "Poppins", sans-serif;

@@ -21,13 +21,13 @@ const Navbar = () => {
       <div className="flex gap-6 text-neutral-200 font-normal text-xl ">
         <Link
           to="/upload"
-          className="hover:text-blue-500 transition duration-200 ease-in-out "
+          className="hover:text-blue-500 transition duration-300 ease-in-out "
         >
           Upload
         </Link>
         <Link
           to="/download"
-          className="hover:text-blue-500 transition duration-200 ease-in-out "
+          className="hover:text-blue-500 transition duration-300 ease-in-out "
         >
           Download
         </Link>
