@@ -14,6 +14,7 @@ const Home = () => {
           height: "500px",
           position: "absolute",
           bottom: "5em",
+          pointerEvents: "none",
         }}
       >
         <Threads
