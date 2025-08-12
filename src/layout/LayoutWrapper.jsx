@@ -13,7 +13,9 @@ const LayoutWrapper = (props) => {
   return (
     <>
       <Navbar />
-      <main>{props.children}</main>
+      <main className="bg-gradient-to-b from-white to-neutral-50  dark:bg-none dark:bg-neutral-900 transition-colors duration-300 ease-in-out">
+        {props.children}
+      </main>
       <Footer />
       <button
         onClick={darkModeToggleHandler}

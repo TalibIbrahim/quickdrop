@@ -1,10 +1,50 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
-* {
-  @apply transition-colors duration-300 ease-in-out;
-}
-
 body {
   font-family: "Poppins", sans-serif;
+}
+
+.dark .glass-button {
+  background: rgba(255, 255, 255, 0.041);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.205);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.377),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 0 12px 6px rgba(255, 255, 255, 0.075);
+  position: relative;
+  overflow: hidden;
+}
+
+.dark .glass-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.103),
+    transparent
+  );
+}
+
+.dark .glass-button::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.096),
+    transparent,
+    rgba(255, 255, 255, 0.164)
+  );
 }

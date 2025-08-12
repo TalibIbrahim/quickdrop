@@ -2,9 +2,11 @@ import { TypeAnimation } from "react-type-animation";
 import { useNavigate } from "react-router-dom";
 import { LuUpload, LuDownload } from "react-icons/lu";
 import Threads from "../animations/Threads";
+import { useDarkMode } from "../context/DarkModeContext";
 
 const Home = () => {
   const navigate = useNavigate();
+  const { darkMode } = useDarkMode();
 
   return (
     <>
@@ -24,7 +26,7 @@ const Home = () => {
           color={[0.231, 0.51, 0.965]}
         />
       </div>
-      <div className="min-h-[calc(100vh-150px)] flex flex-col z-50 pt-64 items-center bg-gradient-to-b from-white to-neutral-50 px-4">
+      <div className="min-h-[calc(100vh-150px)] flex flex-col z-50 pt-64 items-center px-4">
         <h1
           style={{
             fontFamily: '"Poppins", sans-serif',
@@ -64,9 +66,9 @@ const Home = () => {
           {/* Upload Button: Outlined */}
           <button
             onClick={() => navigate("/upload")}
-            className="flex  items-center gap-2 px-8 py-3 border-2 border-blue-500 text-blue-500 bg-white rounded-lg shadow-md 
+            className="glass-button flex items-center gap-2 px-8 py-3 border-2 border-blue-500 text-blue-500 bg-white rounded-lg shadow-md 
              hover:bg-blue-500 hover:text-white hover:shadow-lg/30 hover:scale-105 hover:cursor-pointer
-             transition duration-200"
+             transition !duration-300"
           >
             <span>Upload File</span>
             <LuUpload className="w-5 h-5" strokeWidth={2.5} />
@@ -77,7 +79,7 @@ const Home = () => {
             onClick={() => navigate("/download")}
             className="flex items-center gap-2 px-8 py-3 bg-blue-500 text-white rounded-lg shadow-md 
              hover:bg-blue-600 hover:shadow-lg/30 hover:scale-105 hover:cursor-pointer
-             transition duration-200"
+             transition !duration-300"
           >
             <span>Download File</span>
             <LuDownload className="w-5 h-5" strokeWidth={2.5} />
