@@ -22,7 +22,7 @@ const Home = () => {
         <Threads
           amplitude={1}
           distance={0.5}
-          enableMouseInteraction={false}
+          enableMouseInteraction={true}
           color={[0.231, 0.51, 0.965]}
         />
       </div>
