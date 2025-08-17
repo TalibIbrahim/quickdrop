@@ -100,19 +100,27 @@ const UploadPage = () => {
     </div>
   );
   return (
-    <div className="min-h-[calc(100vh-100px)] flex flex-col items-center justify-center bg-gradient-to-b from-white to-neutral-50 px-4">
-      <h2 className="text-3xl font-bold text-blue-600 mb-6">Upload a File</h2>
+    <div
+      className={` ${
+        hasUploaded ? "min-h-[calc(105vh)]" : "min-h-[calc(100vh-100px)]"
+      } flex flex-col items-center justify-center `}
+    >
+      <h2 className="text-3xl font-bold text-blue-600  dark:text-blue-500 mb-6">
+        Upload a File
+      </h2>
 
       {/* Drag-and-Drop Zone */}
       <div
         onDrop={handleDrop}
         onDragOver={(e) => e.preventDefault()}
-        className="w-full max-w-xl h-48 border-2 flex flex-col items-center justify-center border-dashed border-blue-400 rounded-lg text-center text-gray-600 hover:bg-blue-50 transition mb-6"
+        className="w-full max-w-xl h-48 border-2 flex flex-col items-center justify-center border-dashed border-blue-400 rounded-lg text-center text-gray-600 dark:hover:bg-blue-950 hover:bg-blue-50 transition mb-6"
       >
         {file ? (
-          <p className="text-blue-600 font-medium">{file.name}</p>
+          <p className="text-blue-600 dark:text-blue-500 font-medium">
+            {file.name}
+          </p>
         ) : (
-          <p>Drag and drop your file here</p>
+          <p className="dark:text-neutral-100">Drag and drop your file here</p>
         )}
       </div>
 
@@ -127,7 +135,7 @@ const UploadPage = () => {
       <label
         htmlFor="fileInput"
         onClick={hasUploaded ? handleReset : undefined}
-        className="cursor-pointer px-7 py-3 mb-4 bg-white border-2 border-blue-500 text-blue-500 rounded-md font-semibold hover:bg-blue-500 hover:shadow-md/50 hover:text-white transition duration-200"
+        className="glass-card dark:rounded-4xl dark:px-9 dark:py-3.5 cursor-pointer px-7 py-3 mb-4 bg-white border-2 border-blue-500 text-blue-500 rounded-md font-semibold hover:bg-blue-500 hover:shadow-md/50 hover:text-white transition duration-200"
       >
         {hasUploaded ? "Upload New File" : "Choose File"}
       </label>
@@ -146,20 +154,20 @@ const UploadPage = () => {
         <button
           onClick={handleUpload}
           disabled={hasUploaded}
-          className={`flex items-center gap-2 px-7 py-3 mb-4 cursor-pointer disabled:cursor-not-allowed rounded-md font-semibold transition duration-200 
+          className={`flex items-center gap-2 dark:rounded-4xl dark:px-9 dark:py-3.5 px-7 py-3 mb-4 cursor-pointer disabled:cursor-not-allowed rounded-md font-semibold transition duration-200 
     ${
       hasUploaded
-        ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-        : "bg-blue-500 text-white hover:bg-blue-600 hover:shadow-md/50"
+        ? "bg-gray-300 dark:bg-neutral-700 dark:text-neutral-200 text-gray-600 cursor-not-allowed"
+        : "bg-blue-500 dark:bg-blue-600 dark:hover:bg-blue-700 text-white hover:bg-blue-600 hover:shadow-md/50"
     }`}
         >
-          {hasUploaded ? "Uploaded!" : uploadText}
+          {hasUploaded ? "File Uploaded!" : uploadText}
         </button>
       )}
 
       {/* Upload Code Display */}
       {uploadCode && (
-        <div className="mt-4 flex items-center gap-4 text-black font-medium text-2xl">
+        <div className="mt-4 flex items-center gap-4 text-black dark:text-neutral-50 font-medium text-2xl">
           <span>
             <strong className="text-blue-500 mr-2">Code: </strong> {uploadCode}
           </span>
@@ -173,18 +181,18 @@ const UploadPage = () => {
       )}
 
       {!hasUploaded && (
-        <p className="text-sm text-gray-600 mt-6 mb-4 text-center">
+        <p className="text-sm text-gray-600 dark:text-gray-300 mt-6 mb-4 text-center">
           Please read our{" "}
           <Link
             to="/usage"
-            className="text-blue-600 hover:underline hover:text-blue-800"
+            className="text-blue-600 hover:underline dark:text-blue-500 hover:text-blue-800 dark:hover:text-blue-700"
           >
             Usage Guide
           </Link>{" "}
           and{" "}
           <Link
             to="/privacy"
-            className="text-blue-600 hover:underline hover:text-blue-800"
+            className="text-blue-600 hover:underline dark:text-blue-500 hover:text-blue-800 dark:hover:text-blue-700"
           >
             Privacy Policy
           </Link>{" "}
@@ -194,7 +202,9 @@ const UploadPage = () => {
 
       {uploadCode.length > 0 && (
         <div className="mt-6 flex flex-col items-center gap-2">
-          <span className="text-gray-700 font-medium">Scan to download</span>
+          <span className="text-gray-700 dark:text-gray-200 font-medium">
+            Scan to download
+          </span>
           <div className="bg-white p-4 rounded shadow">
             {typeof window !== "undefined" &&
               console.log(
@@ -206,7 +216,7 @@ const UploadPage = () => {
               size={150}
             />
           </div>
-          <p className="text-sm text-gray-600 mt-8 text-center break-all">
+          <p className="text-sm text-gray-600 dark:text-gray-200 mt-3 text-center break-all">
             Download Link:{" "}
             <a
               href={`${window.location.origin}/download/${uploadCode}`}

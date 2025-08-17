@@ -68,13 +68,13 @@ const DownloadFile = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-50 px-4">
-      <h2 className="text-3xl font-bold text-blue-600 mb-4 cursor-pointer">
+    <div className="min-h-screen flex flex-col items-center justify-center  px-4">
+      <h2 className="text-3xl font-bold text-blue-600 dark:text-blue-500 mb-4 cursor-pointer">
         Download File
       </h2>
 
-      <div className="bg-blue-50 border border-blue-200 rounded-lg px-8 py-6 shadow-md text-center mb-6">
-        <p className="text-lg text-gray-700 font-medium">
+      <div className="bg-blue-50 dark:bg-neutral-800 border border-blue-200 dark:border-blue-300 rounded-lg px-8 py-6 shadow-md text-center mb-6">
+        <p className="text-lg text-gray-700 dark:text-neutral-50 font-medium">
           <strong className="text-blue-500">File Name:</strong>{" "}
           {fileData.fileName}
         </p>
@@ -82,7 +82,7 @@ const DownloadFile = () => {
 
       <button
         onClick={handleDownload}
-        className="px-8 py-3 bg-blue-500 cursor-pointer text-white rounded-md font-semibold hover:bg-blue-600 transition duration-200 flex items-center gap-2"
+        className="px-8 py-3 bg-blue-500 dark:bg-blue-600 dark:hover:bg-blue-700 cursor-pointer text-white rounded-md font-semibold hover:bg-blue-600 transition duration-200 flex items-center gap-2"
       >
         <span>Download</span>
         <LuDownload className="w-5 h-5" strokeWidth={2.5} />

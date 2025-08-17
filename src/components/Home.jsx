@@ -4,6 +4,8 @@ import { LuUpload, LuDownload } from "react-icons/lu";
 import Threads from "../animations/Threads";
 import DarkVeil from "../animations/DarkVeil";
 import { useDarkMode } from "../context/DarkModeContext";
+import lightModeLogo from "../assets/lightmode logo.png";
+import darkModeLogo from "../assets/darkmode logo.png";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -14,8 +16,9 @@ const Home = () => {
       <div
         style={{
           width: "100%",
-          height: darkMode ? "90%" : "500px",
+          height: darkMode ? "100%" : "500px",
           position: "absolute",
+          top: darkMode ? "0" : "",
           bottom: darkMode ? "" : "5em",
           zIndex: 0,
         }}
@@ -37,7 +40,7 @@ const Home = () => {
           />
         )}
       </div>
-      <div className="min-h-[calc(100vh-150px)] flex flex-col pt-64 items-center px-4">
+      <div className="min-h-[calc(100vh-150px)] flex flex-col pt-56 items-center px-4">
         <h1
           style={{
             fontFamily: '"Poppins", sans-serif',
@@ -45,7 +48,11 @@ const Home = () => {
           }}
           className=" relative text-6xl font-bold text-blue-600 dark:text-white text-center "
         >
-          QUICKDROP
+          <img
+            src={darkMode ? darkModeLogo : lightModeLogo}
+            alt="main logo"
+            className="lg:h-28 h-24 mb-2"
+          />
         </h1>
 
         <TypeAnimation
@@ -74,7 +81,6 @@ const Home = () => {
         />
 
         <div className="flex flex-col items-center justify-center md:flex-row gap-6 font-medium text-xl">
-          {/* Upload Button: Outlined */}
           <button
             onClick={() => navigate("/upload")}
             className="glass-card flex items-center justify-around dark:rounded-4xl  px-8 py-3 dark:py-4 w-60 text-center border-2 border-blue-500 text-blue-500 bg-white rounded-lg shadow-md 
@@ -85,7 +91,6 @@ const Home = () => {
             <LuUpload className="w-5 h-5" strokeWidth={2.5} />
           </button>
 
-          {/* Download Button: Filled */}
           <button
             onClick={() => navigate("/download")}
             className="flex items-center justify-around px-8 py-3 dark:py-4 gap-2 dark:rounded-4xl w-60 text-center  bg-blue-500 dark:bg-blue-600 dark:hover:bg-blue-800 text-white rounded-lg shadow-md 

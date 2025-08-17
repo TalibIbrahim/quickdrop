@@ -3,17 +3,18 @@
 
 body {
   font-family: "Poppins", sans-serif;
+  transition: all 0.3s ease-in-out;
 }
 
 .dark .glass-card {
-  background: rgba(255, 255, 255, 0.014);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(120, 120, 120, 0.1);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
   border: 1px solid rgba(255, 255, 255, 0.205);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.377),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.1),
-    inset 0 0 12px 6px rgba(255, 255, 255, 0.075);
+    inset 0 -1px 0 rgba(136, 136, 136, 0.519),
+    inset 0 0 12px 6px rgba(255, 255, 255, 0.089);
   position: relative;
   overflow: hidden;
 }
