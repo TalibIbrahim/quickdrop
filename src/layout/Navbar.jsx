@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import logo from "../assets/logoALT.png";
+import iconLogo from "../assets/logo.png";
 import { useDarkMode } from "../context/DarkModeContext";
 
 const Navbar = () => {
@@ -14,10 +15,19 @@ const Navbar = () => {
         }}
       >
         <Link to="/" className="transition duration-200 ease-in-out ">
-          <img src={logo} alt="app logo icon" className="lg:h-12 h-8" />
+          <img
+            src={logo}
+            alt="app logo full"
+            className="hidden sm:block lg:h-12 h-8"
+          />
+          <img
+            src={iconLogo}
+            alt="app icon logo"
+            className="block sm:hidden h-10 pl-5"
+          />
         </Link>
       </div>
-      <div className="flex lg:gap-6 gap-2 text-neutral-200 font-normal text-xl ">
+      <div className="flex gap-6 text-neutral-200 font-normal text-xl ">
         <Link
           to="/upload"
           className="hover:text-blue-500 dark:hover:text-blue-600 transition duration-300 ease-in-out "
