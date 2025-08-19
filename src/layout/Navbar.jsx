@@ -23,7 +23,7 @@ const Navbar = () => {
           <img
             src={iconLogo}
             alt="app icon logo"
-            className="block sm:hidden h-10 pl-5"
+            className="block sm:hidden h-11 pl-5"
           />
         </Link>
       </div>
