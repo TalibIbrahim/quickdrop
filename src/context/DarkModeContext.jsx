@@ -7,7 +7,8 @@ const DarkModeContext = createContext(); //empty context
 //custom hook
 export const DarkModeContextProvider = ({ children }) => {
   const [darkMode, setDarkMode] = useState(() => {
-    return localStorage.getItem("darkMode") === "true";
+    const stored = localStorage.getItem("darkMode");
+    return stored !== null ? stored === "true" : true;
     // this checks for the value (bool) stored under darkMode. if its true, then === is also true so it sets darkMode. and false === true will give false obv, so it activates lightMode.
   });
 
