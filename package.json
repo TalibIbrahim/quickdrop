@@ -12,7 +12,9 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.11",
     "@vercel/analytics": "^1.5.0",
+    "axios": "^1.13.2",
     "framer-motion": "^12.23.12",
+    "jszip": "^3.10.1",
     "ogl": "^1.0.11",
     "qrcode.react": "^4.2.0",
     "react": "18.2.0",

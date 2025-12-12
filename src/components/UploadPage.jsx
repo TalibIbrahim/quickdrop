@@ -4,75 +4,196 @@ import { FiCopy } from "react-icons/fi";
 import { LuUpload } from "react-icons/lu";
 import QRCode from "react-qr-code";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 const UploadPage = () => {
-  const [file, setFile] = useState(null);
+  const [selectedFiles, setSelectedFiles] = useState([]); // Store array of files
   const [uploadCode, setUploadCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [hasUploaded, setHasUploaded] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // sets file state to the uploaded file
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-    setUploadCode("");
+  // Progress state
+  const [currentFileIndex, setCurrentFileIndex] = useState(0);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  // --- HELPER: UPLOAD SINGLE FILE (Chunked or Direct) ---
+  const uploadSingleFile = async (file, cloudName, formDataBase) => {
+    const CHUNK_SIZE = 5 * 1024 * 1024;
+    const totalSize = file.size;
+
+    // Small file: Direct Upload
+    if (totalSize < 6 * 1024 * 1024) {
+      const formData = new FormData();
+      for (const [key, value] of formDataBase.entries()) {
+        formData.append(key, value);
+      }
+      formData.append("file", file);
+
+      return await axios.post(
+        `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+          onUploadProgress: (e) => {
+            setUploadProgress(Math.round((e.loaded * 100) / e.total));
+          },
+        }
+      );
+    }
+
+    // Large file: Chunked Upload
+    const uniqueUploadId = Date.now().toString() + Math.random().toString();
+    let start = 0;
+    let end = Math.min(CHUNK_SIZE, totalSize);
+    let finalResponse = null;
+
+    while (start < totalSize) {
+      const chunk = file.slice(start, end);
+      const formData = new FormData();
+      for (const [key, value] of formDataBase.entries()) {
+        formData.append(key, value);
+      }
+      formData.append("file", chunk);
+
+      const headers = {
+        "X-Unique-Upload-Id": uniqueUploadId,
+        "Content-Range": `bytes ${start}-${end - 1}/${totalSize}`,
+      };
+
+      const res = await axios.post(
+        `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`,
+        formData,
+        {
+          headers,
+          onUploadProgress: (e) => {
+            const totalUploaded = start + e.loaded;
+            const percent = Math.round((totalUploaded * 100) / totalSize);
+            setUploadProgress(percent);
+          },
+        }
+      );
+
+      finalResponse = res;
+      start = end;
+      end = Math.min(start + CHUNK_SIZE, totalSize);
+    }
+
+    return finalResponse;
+  };
+
+  const processFiles = (fileList) => {
     setError("");
     setHasUploaded(false);
+    setUploadCode("");
+
+    // 1. VALIDATION: MAX 10 FILES
+    if (fileList.length > 10) {
+      setError("Maximum 10 files allowed.");
+      return;
+    }
+
+    // 2. VALIDATION: MAX SIZE 100MB (TOTAL)
+    let totalSize = 0;
+    const filesArray = Array.from(fileList);
+    for (let i = 0; i < filesArray.length; i++) {
+      totalSize += filesArray[i].size;
+    }
+    if (totalSize > 100 * 1024 * 1024) {
+      setError("Total size exceeds 100MB limit.");
+      return;
+    }
+
+    setSelectedFiles(filesArray);
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      processFiles(e.target.files);
+    }
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      setFile(e.dataTransfer.files[0]);
-      setUploadCode("");
-      setError("");
-      setHasUploaded(false);
+      processFiles(e.dataTransfer.files);
     }
   };
 
   const handleUpload = async () => {
-    // 1.check if file exists
-    if (!file) {
-      setError("Please select a file");
+    if (selectedFiles.length === 0) {
+      setError("Please select files");
       return;
     }
 
-    console.log(import.meta.env.VITE_BACKEND_URL, "BACKEND URL");
-
-    // turn on the loading state if true and empty the error state (just in case)
     setLoading(true);
     setError("");
-
-    // push the file to formData
-    const formData = new FormData();
-    formData.append("file", file);
+    setUploadProgress(0);
+    setCurrentFileIndex(0);
 
     try {
-      const res = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/files/upload`,
+      // 1. Get Signature (Once for the session)
+      const signRes = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/files/sign-upload`,
+        { method: "POST" }
+      );
+
+      if (!signRes.ok) throw new Error("Failed to get upload permission");
+
+      const { signature, timestamp, cloudName, apiKey, folder } =
+        await signRes.json();
+
+      const formDataBase = new FormData();
+      formDataBase.append("api_key", apiKey);
+      formDataBase.append("timestamp", timestamp);
+      formDataBase.append("signature", signature);
+      formDataBase.append("folder", folder);
+
+      // 2. Upload Files Individually
+      const uploadedFilesData = [];
+
+      for (let i = 0; i < selectedFiles.length; i++) {
+        setCurrentFileIndex(i + 1); // Update UI to show "Uploading 1 of X"
+        setUploadProgress(0);
+
+        const file = selectedFiles[i];
+        const res = await uploadSingleFile(file, cloudName, formDataBase);
+        const data = res.data;
+
+        uploadedFilesData.push({
+          fileName: file.name,
+          fileURL: data.secure_url,
+          publicId: data.public_id,
+          resourceType: data.resource_type,
+          size: data.bytes,
+        });
+      }
+
+      // 3. Save Metadata (Send the ARRAY of files)
+      const saveRes = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/files/save-metadata`,
         {
           method: "POST",
-          body: formData,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            files: uploadedFilesData, // Sending array
+          }),
         }
       );
 
-      // if faced an error during upload throw this error
+      if (!saveRes.ok) throw new Error("Failed to save file code");
 
-      if (!res.ok) {
-        // Try to get error message from backend JSON response
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Upload failed");
-      }
-
-      // save the generated shortid code to display to the user
-      const data = await res.json();
+      const data = await saveRes.json();
       setUploadCode(data.code);
       setHasUploaded(true);
     } catch (err) {
-      setError(err.message || "Upload failed");
+      console.error(err);
+      const msg = err.response?.data?.error?.message || err.message;
+      setError(msg || "Upload failed");
     } finally {
       setLoading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -86,7 +207,7 @@ const UploadPage = () => {
     const input = document.getElementById("fileInput");
     if (input) input.value = null;
 
-    setFile(null);
+    setSelectedFiles([]);
     setUploadCode("");
     setHasUploaded(false);
     setCopied(false);
@@ -95,73 +216,107 @@ const UploadPage = () => {
 
   const uploadText = (
     <div className="flex flex-row justify-between gap-3">
-      <span>Upload </span>
+      <span>Upload</span>
       <LuUpload className="w-5 h-5" strokeWidth={2.5} />
     </div>
   );
+
   return (
     <div
       className={` ${
         hasUploaded ? "min-h-[calc(105vh)]" : "min-h-[calc(100vh-100px)]"
       } flex flex-col items-center justify-center `}
     >
-      <h2 className="text-3xl font-bold text-blue-600  dark:text-blue-500 mb-6">
-        Upload a File
+      <h2 className="text-3xl font-bold text-blue-600 dark:text-blue-500 mb-6">
+        Upload Files
       </h2>
 
       {/* Drag-and-Drop Zone */}
       <div
         onDrop={handleDrop}
         onDragOver={(e) => e.preventDefault()}
-        className="w-full max-w-xl h-48 border-2 flex flex-col items-center justify-center border-dashed border-blue-400 rounded-lg text-center text-gray-600 dark:hover:bg-blue-950 hover:bg-blue-50 transition mb-6"
+        className="w-full max-w-xl h-48 border-2 flex flex-col items-center justify-center border-dashed border-blue-400 rounded-lg text-center text-gray-600 dark:hover:bg-blue-950 hover:bg-blue-50 transition mb-6 px-4"
       >
-        {file ? (
-          <p className="text-blue-600 dark:text-blue-500 font-medium">
-            {file.name}
-          </p>
+        {selectedFiles.length > 0 ? (
+          <div className="text-blue-600 dark:text-blue-500">
+            <p className="font-bold text-lg mb-1">
+              {selectedFiles.length} files selected
+            </p>
+            <ul className="text-sm opacity-80 list-none">
+              {selectedFiles.slice(0, 3).map((f, i) => (
+                <li key={i}>{f.name}</li>
+              ))}
+              {selectedFiles.length > 3 && (
+                <li>...and {selectedFiles.length - 3} more</li>
+              )}
+            </ul>
+            <p className="text-xs mt-2 opacity-70">
+              Total:{" "}
+              {(
+                selectedFiles.reduce((acc, f) => acc + f.size, 0) /
+                1024 /
+                1024
+              ).toFixed(2)}{" "}
+              MB
+            </p>
+          </div>
         ) : (
-          <p className="dark:text-neutral-100">Drag and drop your file here</p>
+          <p className="dark:text-neutral-100">
+            Drag and drop files here <br />
+            <span className="text-xs opacity-70">
+              (Max 10 files, 100MB Total)
+            </span>
+          </p>
         )}
       </div>
 
-      {/* File Input (Hidden) */}
       <input
         type="file"
         id="fileInput"
         name="file"
+        multiple // Enable multiple selection
         onChange={handleFileChange}
         className="hidden"
       />
+
       <label
         htmlFor="fileInput"
         onClick={hasUploaded ? handleReset : undefined}
         className="glass-card dark:rounded-4xl dark:px-9 dark:py-3.5 cursor-pointer px-7 py-3 mb-4 bg-white border-2 border-blue-500 text-blue-500 rounded-md font-semibold hover:bg-blue-500 hover:shadow-md/50 hover:text-white transition duration-200"
       >
-        {hasUploaded ? "Upload New File" : "Choose File"}
+        {hasUploaded ? "Upload New Files" : "Choose Files"}
       </label>
 
-      {/* Upload Button */}
+      {/* Upload Button / Progress Bar */}
       {loading ? (
-        <div className="mb-4">
-          <Oval
-            height={60}
-            width={60}
-            color="#3B82F6"
-            secondaryColor="#3B82F6"
-          />
+        <div className="w-full max-w-xs mb-4">
+          <div className="flex justify-between mb-1">
+            <span className="text-sm font-medium text-blue-700 dark:text-white">
+              Uploading {currentFileIndex}/{selectedFiles.length}...
+            </span>
+            <span className="text-sm font-medium text-blue-700 dark:text-white">
+              {uploadProgress}%
+            </span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+            <div
+              className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-out"
+              style={{ width: `${uploadProgress}%` }}
+            ></div>
+          </div>
         </div>
       ) : (
         <button
           onClick={handleUpload}
-          disabled={hasUploaded}
+          disabled={hasUploaded || selectedFiles.length === 0}
           className={`flex items-center gap-2 dark:rounded-4xl dark:px-9 dark:py-3.5 px-7 py-3 mb-4 cursor-pointer disabled:cursor-not-allowed rounded-md font-semibold transition duration-200 
-    ${
-      hasUploaded
-        ? "bg-gray-300 dark:bg-neutral-700 dark:text-neutral-200 text-gray-600 cursor-not-allowed"
-        : "bg-blue-500 dark:bg-blue-600 dark:hover:bg-blue-700 text-white hover:bg-blue-600 hover:shadow-md/50"
-    }`}
+            ${
+              hasUploaded || selectedFiles.length === 0
+                ? "bg-gray-300 dark:bg-neutral-700 dark:text-neutral-200 text-gray-600 cursor-not-allowed"
+                : "bg-blue-500 dark:bg-blue-600 dark:hover:bg-blue-700 text-white hover:bg-blue-600 hover:shadow-md/50"
+            }`}
         >
-          {hasUploaded ? "File Uploaded!" : uploadText}
+          {hasUploaded ? "Files Uploaded!" : uploadText}
         </button>
       )}
 
@@ -206,11 +361,6 @@ const UploadPage = () => {
             Scan to download
           </span>
           <div className="bg-white p-4 rounded shadow">
-            {typeof window !== "undefined" &&
-              console.log(
-                "DOWNLOAD LINK IS: ",
-                `${window.location.origin}/download/${uploadCode}`
-              )}
             <QRCode
               value={`${window.location.origin}/download/${uploadCode}`}
               size={150}
