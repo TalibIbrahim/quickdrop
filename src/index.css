@@ -27,6 +27,7 @@ body {
   position: relative;
   overflow: hidden;
   transition: all 0.2s ease;
+  transform: translateZ(0);
 }
 
 /* Hover State */
