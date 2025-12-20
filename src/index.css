@@ -12,8 +12,8 @@ body {
   background: rgba(24, 63, 148, 0.07);
 
   /* Blur effect */
-  backdrop-filter: blur(40px);
   -webkit-backdrop-filter: blur(40px);
+  backdrop-filter: blur(40px);
 
   /* Blueish border (0.3 opacity) */
   border: 1px solid rgba(37, 99, 235, 0.3);
