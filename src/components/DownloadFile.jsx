@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Oval } from "react-loader-spinner";
 import { LuDownload, LuFile } from "react-icons/lu";
-import ErrorCard from "../../UI/ErrorCard";
+import ErrorCard from "./UI/ErrorCard";
 import JSZip from "jszip";
+import ExpiryTimer from "./UI/ExpiryTimer";
 
 const DownloadFile = () => {
   const { fileid } = useParams();
@@ -12,6 +13,7 @@ const DownloadFile = () => {
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
   const [progressText, setProgressText] = useState("");
+  const [isExpired, setIsExpired] = useState(false);
 
   const handleDownload = async () => {
     if (!fileGroup || !fileGroup.files) return;
@@ -20,18 +22,11 @@ const DownloadFile = () => {
     setProgressText("Processing...");
 
     try {
-      // --- SCENARIO 1: Single File ---
+      // --- Single File ---
       if (fileGroup.files.length === 1) {
         const fileData = fileGroup.files[0];
 
-        // Raw files (existing logic)
-        if (fileData.resourceType === "raw") {
-          window.open(fileData.fileURL, "_self");
-          setDownloading(false);
-          return;
-        }
-
-        // Images/Videos - Blob download
+        // Images/Videos/PDFs - Blob download
         try {
           const res = await fetch(fileData.fileURL);
           if (!res.ok) throw new Error("Network error");
@@ -44,10 +39,15 @@ const DownloadFile = () => {
           a.download = fileData.fileName;
           document.body.appendChild(a);
           a.click();
+
+          // cleanup
           window.URL.revokeObjectURL(url);
           document.body.removeChild(a);
+
+          // end
         } catch (err) {
           // Fallback
+          console.error("Blob download failed:", err);
           window.open(fileData.fileURL, "_self");
         }
         setDownloading(false);
@@ -70,7 +70,7 @@ const DownloadFile = () => {
             const blob = await response.blob();
             folder.file(file.fileName, blob);
 
-            completed++;
+            completed++; //increment count of files completed
             setProgressText(
               `Zipping ${completed}/${fileGroup.files.length}...`
             );
@@ -154,6 +154,11 @@ const DownloadFile = () => {
       </h2>
 
       <div className="bg-blue-50 dark:bg-neutral-800 border border-blue-200 dark:border-blue-300 rounded-lg px-8 py-6 shadow-md text-center mb-6 w-full max-w-md">
+        {/* TIMER DIV */}
+        <div className="flex justify-center mb-4">
+          {fileGroup && <ExpiryTimer createdAt={fileGroup.createdAt} />}
+        </div>
+
         <p className="text-lg text-gray-700 dark:text-neutral-50 font-medium mb-2">
           <strong className="text-blue-500">Content:</strong> {mainFileName}
         </p>
@@ -182,7 +187,7 @@ const DownloadFile = () => {
 
       <button
         onClick={handleDownload}
-        disabled={downloading}
+        disabled={downloading || isExpired}
         className={`px-8 py-3 rounded-md font-semibold transition duration-200 flex items-center gap-2 text-white
           ${
             downloading
@@ -203,8 +208,14 @@ const DownloadFile = () => {
           </>
         ) : (
           <>
-            <span>{fileCount > 1 ? "Download All as Zip" : "Download"}</span>
-            <LuDownload className="w-5 h-5" strokeWidth={2.5} />
+            <span>
+              {isExpired
+                ? "File Expired"
+                : fileCount > 1
+                ? "Download All as Zip"
+                : "Download"}
+            </span>
+            {!isExpired && <LuDownload className="w-5 h-5" strokeWidth={2.5} />}
           </>
         )}
       </button>

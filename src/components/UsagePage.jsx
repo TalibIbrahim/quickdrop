@@ -14,13 +14,13 @@ const UsagePage = () => {
 
       <h2 className="text-xl font-semibold mt-6 mb-2">How to Upload</h2>
       <ul className="list-disc list-inside mb-4">
-        <li>
-          Go to the Upload page via the navigation bar or the Upload button on
-          the home page.
-        </li>
+        <li>Go to the Upload page via the navigation bar or the home page.</li>
         <li>
           Drag and drop your file or use the <strong>Choose File</strong>{" "}
           button.
+        </li>
+        <li>
+          You can select <strong>multiple files</strong> at once.
         </li>
         <li>
           Click <strong>Upload</strong>. You'll receive a unique code and QR
@@ -33,21 +33,41 @@ const UsagePage = () => {
       <ul className="list-disc list-inside mb-4">
         <li>Go to the Download page.</li>
         <li>
-          Enter the file code and click <strong>Go</strong>.
+          Enter the file code and click <strong>Go</strong> (or scan the QR
+          code).
         </li>
-        <li>Or scan the QR code directly.</li>
+        <li>
+          <strong>Single File:</strong> Downloads directly to your device.
+        </li>
+        <li>
+          <strong>Multiple Files:</strong> QuickDrop will zip them automatically
+          for a single download.
+        </li>
       </ul>
 
-      <h2 className="text-xl font-semibold mt-6 mb-2">Limitations</h2>
-      <ul className="list-disc list-inside mb-4">
+      <h2 className="text-xl font-semibold mt-6 mb-2">Limits & Restrictions</h2>
+      <ul className="list-disc list-inside mb-4 space-y-1">
         <li>
-          Maximum of <strong>1 file</strong> per upload.
+          Total Upload Size: <strong>150 MB</strong> (across all files).
         </li>
         <li>
-          Maximum file size: <strong>50MB</strong>.
+          <strong>Per-File Limits:</strong>
+          <ul className="list-disc list-inside ml-6 mt-1 text-gray-600 dark:text-gray-400">
+            <li>
+              Videos: Max <strong>100 MB</strong> per file.
+            </li>
+            <li>
+              Images: Max <strong>10 MB</strong> per file.
+            </li>
+            <li>
+              Documents/Archives (PDF, ZIP, etc.): Max <strong>10 MB</strong>{" "}
+              per file.
+            </li>
+          </ul>
         </li>
         <li>
-          Files are stored temporarily: <strong>5 minutes only</strong>.
+          Retention: Files are deleted automatically after{" "}
+          <strong>5 minutes</strong>.
         </li>
       </ul>
 

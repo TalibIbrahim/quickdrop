@@ -5,19 +5,46 @@ body {
   font-family: "Poppins", sans-serif;
 }
 
+/* Blue-600 RGB: 37, 99, 235 */
+
 .dark .glass-card {
-  background: rgba(120, 120, 120, 0.1);
+  /* Blue background tint (0.1 opacity) */
+  background: rgba(24, 63, 148, 0.07);
+
+  /* Blur effect */
   backdrop-filter: blur(40px);
   -webkit-backdrop-filter: blur(40px);
-  border: 1px solid rgba(255, 255, 255, 0.205);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.377),
-    inset 0 -1px 0 rgba(136, 136, 136, 0.519),
-    inset 0 0 12px 6px rgba(255, 255, 255, 0.089);
+
+  /* Blueish border (0.3 opacity) */
+  border: 1px solid rgba(37, 99, 235, 0.3);
+
+  /* Complex shadow matching your button logic */
+  box-shadow: 0 8px 32px rgba(37, 99, 235, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    /* Top White Highlight */ inset 0 -1px 0 rgba(37, 99, 235, 0.2),
+    /* Bottom Blue Rim */ inset 0 0 12px 6px rgba(37, 99, 235, 0.05); /* Diffuse Inner Glow */
+
   position: relative;
   overflow: hidden;
+  transition: all 0.2s ease;
 }
 
+/* Hover State */
+.dark .glass-card.interactive:hover {
+  /* Darker background (0.2 opacity) */
+  background: rgba(37, 99, 235, 0.2);
+
+  /* Brighter Border (0.5 opacity) */
+  border-color: rgba(37, 99, 235, 0.5);
+
+  /* Intensified Shadows & Glows */
+  box-shadow: 0 8px 32px rgba(37, 99, 235, 0.1),
+    /* Stronger Outer Glow */ inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    /* Brighter Top Highlight */ inset 0 -1px 0 rgba(37, 99, 235, 0.3),
+    /* Stronger Bottom Rim */ inset 0 0 12px 6px rgba(37, 99, 235, 0.1); /* Stronger Inner Glow */
+}
+
+/* Optional: Keep these if you still want the gradient lines */
 .dark .glass-card::before {
   content: "";
   position: absolute;
@@ -28,9 +55,10 @@ body {
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.05),
+    rgba(37, 99, 235, 0.4),
     transparent
   );
+  transition: opacity 0.2s ease;
 }
 
 .dark .glass-card::after {
@@ -42,8 +70,48 @@ body {
   height: 100%;
   background: linear-gradient(
     180deg,
-    rgba(255, 255, 255, 0.096),
+    rgba(37, 99, 235, 0.1),
     transparent,
-    rgba(255, 255, 255, 0.164)
+    rgba(37, 99, 235, 0.2)
   );
+  transition: opacity 0.2s ease;
+}
+
+/* GLASS CARD BUT RED */
+.glass-btn-red {
+  /* Red background tint */
+  background: rgba(220, 38, 38, 0.1);
+
+  /* Blur effect */
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+
+  /* Reddish border */
+  border: 1px solid rgba(220, 38, 38, 0.3);
+
+  /* Complex shadow for the "Glass" look with Red bevels */
+  box-shadow: 0 8px 32px rgba(220, 38, 38, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(220, 38, 38, 0.2),
+    inset 0 0 12px 6px rgba(220, 38, 38, 0.05);
+
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+/* Hover State */
+.glass-btn-red:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.2);
+  border-color: rgba(220, 38, 38, 0.5);
+  box-shadow: 0 8px 32px rgba(220, 38, 38, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -1px 0 rgba(220, 38, 38, 0.3),
+    inset 0 0 12px 6px rgba(220, 38, 38, 0.1);
+}
+
+/* Disabled State */
+.glass-btn-red:disabled {
+  opacity: 0.6;
+  cursor: wait;
 }

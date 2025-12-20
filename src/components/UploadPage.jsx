@@ -1,15 +1,19 @@
 import { useState } from "react";
-import { Oval } from "react-loader-spinner";
-import { FiCopy } from "react-icons/fi";
+import { FiCopy, FiTrash2 } from "react-icons/fi";
 import { LuUpload } from "react-icons/lu";
 import QRCode from "react-qr-code";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import ExpiryTimer from "./UI/ExpiryTimer";
+import { Oval } from "react-loader-spinner";
 
 const UploadPage = () => {
   const [selectedFiles, setSelectedFiles] = useState([]); // Store array of files
-  const [uploadCode, setUploadCode] = useState("");
+  const [uploadTime, setUploadTime] = useState(null); // timer state
+  const [uploadCode, setUploadCode] = useState(""); // code state
+  // UI HELPER STATES:
   const [loading, setLoading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState("");
   const [hasUploaded, setHasUploaded] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -18,12 +22,17 @@ const UploadPage = () => {
   const [currentFileIndex, setCurrentFileIndex] = useState(0);
   const [uploadProgress, setUploadProgress] = useState(0);
 
-  // --- HELPER: UPLOAD SINGLE FILE (Chunked or Direct) ---
+  // Upload single file. Can upload both single and multiple
   const uploadSingleFile = async (file, cloudName, formDataBase) => {
     const CHUNK_SIZE = 5 * 1024 * 1024;
     const totalSize = file.size;
 
-    // Small file: Direct Upload
+    // because of how cloudinary treats pdfs, we FORCE our pdf upload to send the file as 'raw'
+    // on auto, it sends it as 'image'
+    const isPDF = file.type === "application/pdf";
+    const resourceType = isPDF ? "raw" : "auto";
+
+    // if small file, direct Upload
     if (totalSize < 6 * 1024 * 1024) {
       const formData = new FormData();
       for (const [key, value] of formDataBase.entries()) {
@@ -32,7 +41,7 @@ const UploadPage = () => {
       formData.append("file", file);
 
       return await axios.post(
-        `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`,
+        `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -43,7 +52,7 @@ const UploadPage = () => {
       );
     }
 
-    // Large file: Chunked Upload
+    // if Large file, upload in chunks
     const uniqueUploadId = Date.now().toString() + Math.random().toString();
     let start = 0;
     let end = Math.min(CHUNK_SIZE, totalSize);
@@ -63,7 +72,7 @@ const UploadPage = () => {
       };
 
       const res = await axios.post(
-        `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`,
+        `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
         formData,
         {
           headers,
@@ -88,20 +97,22 @@ const UploadPage = () => {
     setHasUploaded(false);
     setUploadCode("");
 
-    // 1. VALIDATION: MAX 10 FILES
-    if (fileList.length > 10) {
-      setError("Maximum 10 files allowed.");
-      return;
-    }
+    // // LIMIT max 10 files:
+    // if (fileList.length > 10) {
+    //   setError("Maximum 10 files allowed.");
+    //   return;
+    // }
 
-    // 2. VALIDATION: MAX SIZE 100MB (TOTAL)
+    //  Max upload size is 150MB (total), individual upload limits are fixed by cloudinary.
     let totalSize = 0;
     const filesArray = Array.from(fileList);
     for (let i = 0; i < filesArray.length; i++) {
       totalSize += filesArray[i].size;
     }
-    if (totalSize > 100 * 1024 * 1024) {
-      setError("Total size exceeds 100MB limit.");
+
+    // 150mb in bytes
+    if (totalSize > 150 * 1024 * 1024) {
+      setError("Total size exceeds 150MB limit.");
       return;
     }
 
@@ -186,6 +197,7 @@ const UploadPage = () => {
 
       const data = await saveRes.json();
       setUploadCode(data.code);
+      setUploadTime(data.createdAt || new Date()); // TIMER is set from here
       setHasUploaded(true);
     } catch (err) {
       console.error(err);
@@ -207,11 +219,35 @@ const UploadPage = () => {
     const input = document.getElementById("fileInput");
     if (input) input.value = null;
 
+    // RESET ALL STATES:
     setSelectedFiles([]);
     setUploadCode("");
+    setUploadTime(null); // Reset Timestamp
     setHasUploaded(false);
     setCopied(false);
     setError("");
+  };
+
+  const handleDelete = async () => {
+    if (!confirm("Are you sure you want to delete these files immediately?"))
+      return;
+
+    setIsDeleting(true);
+
+    try {
+      await axios.delete(
+        `${import.meta.env.VITE_BACKEND_URL}/api/files/${uploadCode}`
+      );
+
+      // Reset the UI after successful delete
+      handleReset();
+      alert("Files deleted successfully.");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete files.");
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const uploadText = (
@@ -225,9 +261,9 @@ const UploadPage = () => {
     <div
       className={` ${
         hasUploaded ? "min-h-[calc(105vh)]" : "min-h-[calc(100vh-100px)]"
-      } flex flex-col items-center justify-center `}
+      } flex flex-col items-center justify-center mb-10 `}
     >
-      <h2 className="text-3xl font-bold text-blue-600 dark:text-blue-500 mb-6">
+      <h2 className="text-3xl font-bold text-blue-600 dark:text-blue-500 pt-28 mb-6">
         Upload Files
       </h2>
 
@@ -263,9 +299,7 @@ const UploadPage = () => {
         ) : (
           <p className="dark:text-neutral-100">
             Drag and drop files here <br />
-            <span className="text-xs opacity-70">
-              (Max 10 files, 100MB Total)
-            </span>
+            <span className="text-xs opacity-70">(150MB Total)</span>
           </p>
         )}
       </div>
@@ -282,7 +316,7 @@ const UploadPage = () => {
       <label
         htmlFor="fileInput"
         onClick={hasUploaded ? handleReset : undefined}
-        className="glass-card dark:rounded-4xl dark:px-9 dark:py-3.5 cursor-pointer px-7 py-3 mb-4 bg-white border-2 border-blue-500 text-blue-500 rounded-md font-semibold hover:bg-blue-500 hover:shadow-md/50 hover:text-white transition duration-200"
+        className="glass-card interactive dark:rounded-4xl dark:px-9 dark:py-3.5 cursor-pointer px-7 py-3 mb-4 bg-white border-2 border-blue-500 text-blue-500 rounded-md font-semibold hover:bg-blue-500 hover:shadow-md/50 hover:text-white transition duration-200"
       >
         {hasUploaded ? "Upload New Files" : "Choose Files"}
       </label>
@@ -322,15 +356,46 @@ const UploadPage = () => {
 
       {/* Upload Code Display */}
       {uploadCode && (
-        <div className="mt-4 flex items-center gap-4 text-black dark:text-neutral-50 font-medium text-2xl">
-          <span>
-            <strong className="text-blue-500 mr-2">Code: </strong> {uploadCode}
-          </span>
+        <div className="mt-4 flex flex-col items-center gap-4 text-black dark:text-neutral-50 font-medium text-2xl">
+          {/* EXPIRY TIMER */}
+          <ExpiryTimer createdAt={uploadTime} />
+          <div className="flex items-center gap-4">
+            <span>
+              <strong className="text-blue-500 mr-2">Code: </strong>{" "}
+              {uploadCode}
+            </span>
+            {/* COPY BUTTON */}
+            <button
+              onClick={handleCopy}
+              className="px-2 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600 transition text-sm"
+            >
+              {copied ? "Copied!" : <FiCopy size={20} />}
+            </button>
+          </div>
+          {/* DELETE BUTTON */}
           <button
-            onClick={handleCopy}
-            className="px-2 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition text-sm"
+            onClick={handleDelete}
+            disabled={isDeleting}
+            className={`glass-btn-red flex items-center gap-2 dark:rounded-4xl dark:px-9 dark:py-3.5 text-base cursor-pointer px-7 py-3 mt-2  bg-neutral-50 border border-red-500 text-red-500 rounded-md font-semibold hover:bg-red-500 hover:shadow-md/50 hover:text-white transition duration-200
+              ${isDeleting ? "opacity-70 cursor-wait" : ""}`}
           >
-            {copied ? "Copied!" : <FiCopy size={20} />}
+            {isDeleting ? (
+              <>
+                <Oval
+                  height={20}
+                  width={20}
+                  color="#ef4444"
+                  secondaryColor="#ef4444"
+                  strokeWidth={4}
+                />
+                <span className="text-red-500">Deleting...</span>
+              </>
+            ) : (
+              <>
+                <FiTrash2 className="w-5 h-5" />
+                <span>Delete Now</span>
+              </>
+            )}
           </button>
         </div>
       )}
