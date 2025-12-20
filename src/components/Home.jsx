@@ -99,7 +99,7 @@ const Home = () => {
         >
           <button
             onClick={() => navigate("/upload")}
-            className="glass-card flex items-center justify-around dark:rounded-4xl  px-8 py-3 dark:py-4 w-60 text-center border-2 border-blue-500 text-blue-500 bg-white rounded-lg shadow-md 
+            className="glass-card interactive flex items-center justify-around dark:rounded-4xl  px-8 py-3 dark:py-4 w-60 text-center border-2 border-blue-500 text-blue-500 bg-white rounded-lg shadow-md 
              hover:bg-blue-500 hover:text-white hover:shadow-lg/30 hover:scale-105 cursor-pointer relative
              transition !duration-300"
           >
