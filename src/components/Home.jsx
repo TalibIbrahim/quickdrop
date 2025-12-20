@@ -79,7 +79,7 @@ const Home = () => {
             1500,
             "Files expire after 5 minutes",
             1500,
-            "Supports files up to 50MB",
+            "Supports files up to 150MB",
             1500,
           ]}
           speed={80}
