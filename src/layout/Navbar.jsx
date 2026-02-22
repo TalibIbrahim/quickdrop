@@ -29,6 +29,12 @@ const Navbar = () => {
       </div>
       <div className="flex gap-6 text-neutral-200 font-normal text-xl ">
         <Link
+          to="/p2p-share"
+          className="hover:text-blue-500 dark:hover:text-blue-600 transition duration-300 ease-in-out "
+        >
+          P2P Share
+        </Link>
+        <Link
           to="/upload"
           className="hover:text-blue-500 dark:hover:text-blue-600 transition duration-300 ease-in-out "
         >

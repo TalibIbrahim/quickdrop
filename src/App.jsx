@@ -7,6 +7,7 @@ import DownloadFile from "./components/DownloadFile";
 import LayoutWrapper from "./layout/LayoutWrapper";
 import UsagePage from "./components/UsagePage";
 import PrivacyPolicy from "./components/PrivacyPolicy";
+import SharePage from "./components/P2P/SharePage";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/download/:fileid" element={<DownloadFile />} />
         <Route path="/usage" element={<UsagePage />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/p2p-share" element={<SharePage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </LayoutWrapper>
