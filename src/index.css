@@ -19,12 +19,13 @@ body {
   border: 1px solid rgba(37, 99, 235, 0.3);
 
   /* Complex shadow matching your button logic */
-  box-shadow: 0 8px 32px rgba(37, 99, 235, 0.05),
+  box-shadow:
+    0 8px 32px rgba(37, 99, 235, 0.05),
     inset 0 1px 0 rgba(255, 255, 255, 0.2),
     /* Top White Highlight */ inset 0 -1px 0 rgba(37, 99, 235, 0.2),
     /* Bottom Blue Rim */ inset 0 0 12px 6px rgba(37, 99, 235, 0.05); /* Diffuse Inner Glow */
 
-  position: relative;
+  /* position: relative; */
   overflow: hidden;
   transition: all 0.2s ease;
   transform: translateZ(0);
@@ -39,7 +40,8 @@ body {
   border-color: rgba(37, 99, 235, 0.5);
 
   /* Intensified Shadows & Glows */
-  box-shadow: 0 8px 32px rgba(37, 99, 235, 0.1),
+  box-shadow:
+    0 8px 32px rgba(37, 99, 235, 0.1),
     /* Stronger Outer Glow */ inset 0 1px 0 rgba(255, 255, 255, 0.3),
     /* Brighter Top Highlight */ inset 0 -1px 0 rgba(37, 99, 235, 0.3),
     /* Stronger Bottom Rim */ inset 0 0 12px 6px rgba(37, 99, 235, 0.1); /* Stronger Inner Glow */
@@ -91,7 +93,8 @@ body {
   border: 1px solid rgba(220, 38, 38, 0.3);
 
   /* Complex shadow for the "Glass" look with Red bevels */
-  box-shadow: 0 8px 32px rgba(220, 38, 38, 0.15),
+  box-shadow:
+    0 8px 32px rgba(220, 38, 38, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.2),
     inset 0 -1px 0 rgba(220, 38, 38, 0.2),
     inset 0 0 12px 6px rgba(220, 38, 38, 0.05);
@@ -105,7 +108,8 @@ body {
 .glass-btn-red:hover:not(:disabled) {
   background: rgba(220, 38, 38, 0.2);
   border-color: rgba(220, 38, 38, 0.5);
-  box-shadow: 0 8px 32px rgba(220, 38, 38, 0.25),
+  box-shadow:
+    0 8px 32px rgba(220, 38, 38, 0.25),
     inset 0 1px 0 rgba(255, 255, 255, 0.3),
     inset 0 -1px 0 rgba(220, 38, 38, 0.3),
     inset 0 0 12px 6px rgba(220, 38, 38, 0.1);
