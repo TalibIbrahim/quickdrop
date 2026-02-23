@@ -195,7 +195,7 @@ const Receiver = () => {
                 placeholder="ENTER CODE"
                 maxLength={6}
                 onChange={(e) => setCode(e.target.value.toUpperCase())}
-                className="w-full border-2 border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900/50 p-4 rounded-xl text-center tracking-[0.5em] text-2xl font-mono uppercase focus:outline-none focus:border-blue-500 dark:focus:border-blue-500 transition-colors dark:text-white placeholder:text-gray-300 dark:placeholder:text-gray-600 placeholder:tracking-normal"
+                className="w-full border-2 border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900/50 p-4 rounded-xl text-center tracking-[0.5em] text-2xl font-mono uppercase focus:outline-none focus:border-blue-500 dark:focus:border-blue-500 transition-colors text-neutral-900 dark:text-white placeholder:text-gray-300 dark:placeholder:text-gray-600 placeholder:tracking-normal"
               />
             </div>
             <button
