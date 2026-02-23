@@ -279,7 +279,7 @@ const Sender = ({ onBack }) => {
                   fileInputRef.current.value = "";
                 }
               }}
-              className="w-full bg-green-600 text-white font-semibold py-3 rounded-xl hover:bg-green-700 hover:shadow-lg hover:-translate-y-0.5 transition-all mt-2"
+              className="w-full bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 transition-all mt-2"
             >
               Send Another File
             </button>
