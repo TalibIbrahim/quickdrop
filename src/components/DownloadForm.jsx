@@ -14,32 +14,30 @@ const DownloadForm = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-160px)]  flex flex-col items-center justify-center  px-4">
-      <h2 className="text-3xl font-semibold text-blue-600 dark:text-blue-500 mb-6 text-center">
-        Enter File Code to Download
-      </h2>
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col sm:flex-row gap-4 items-center"
-      >
-        <input
-          type="text"
-          placeholder="E.G. EFGHIJ"
-          value={code}
-          onChange={(e) => setCode(e.target.value.toUpperCase())}
-          className="px-4 py-2 border-2 border-blue-400 dark:border-blue-500 dark:focus:ring-blue-400 rounded-md uppercase focus:outline-none focus:ring-2 focus:ring-blue-300 text-gray-700 dark:text-neutral-50 w-64 sm:w-80"
-          required
-        />
-        <button
-          type="submit"
-          className="flex items-center gap-1 w-24 text-center px-6 py-2 bg-blue-500 dark:bg-blue-600 border-2 border-blue-500 text-white rounded-md font-semibold 
-             transition-all duration-400 ease-in-out cursor-pointer
-             hover:bg-white dark:hover:bg-blue-800 dark:hover:border-blue-700 dark:border-blue-700 dark:hover:text-white hover:text-blue-500 hover:border-blue-500 hover:gap-2.5"
-        >
-          <span>Go</span>
-          <FaArrowRight className="w-4 h-4 " />
-        </button>
-      </form>
+    <div className="min-h-[calc(100vh-100px)] flex flex-col items-center justify-center px-4">
+      <div className="glass-card flex flex-col items-center p-8 bg-white/70 dark:bg-neutral-800/70 backdrop-blur-lg border border-gray-200 dark:border-neutral-700/50 rounded-2xl shadow-xl w-full max-w-md mx-auto">
+        <h2 className="text-2xl font-bold text-blue-600 dark:text-blue-500 mb-6 text-center">
+          Download File
+        </h2>
+
+        <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
+          <input
+            type="text"
+            placeholder="ENTER CODE"
+            value={code}
+            onChange={(e) => setCode(e.target.value.toUpperCase())}
+            className="w-full border-2 border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900/50 p-4 rounded-xl text-center tracking-[0.3em] text-xl font-mono uppercase focus:outline-none focus:border-blue-500 dark:focus:border-blue-500 transition-colors dark:text-white placeholder:text-gray-300 dark:placeholder:text-gray-600 placeholder:tracking-normal"
+            required
+          />
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 group"
+          >
+            <span>Retrieve</span>
+            <FaArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

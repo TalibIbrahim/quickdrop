@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FiCopy, FiTrash2 } from "react-icons/fi";
+import { FiCopy, FiTrash2, FiCheckCircle } from "react-icons/fi";
 import { LuUpload } from "react-icons/lu";
 import QRCode from "react-qr-code";
 import { Link } from "react-router-dom";
@@ -48,7 +48,7 @@ const UploadPage = () => {
           onUploadProgress: (e) => {
             setUploadProgress(Math.round((e.loaded * 100) / e.total));
           },
-        }
+        },
       );
     }
 
@@ -81,7 +81,7 @@ const UploadPage = () => {
             const percent = Math.round((totalUploaded * 100) / totalSize);
             setUploadProgress(percent);
           },
-        }
+        },
       );
 
       finalResponse = res;
@@ -147,7 +147,7 @@ const UploadPage = () => {
       // 1. Get Signature (Once for the session)
       const signRes = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/api/files/sign-upload`,
-        { method: "POST" }
+        { method: "POST" },
       );
 
       if (!signRes.ok) throw new Error("Failed to get upload permission");
@@ -190,7 +190,7 @@ const UploadPage = () => {
           body: JSON.stringify({
             files: uploadedFilesData, // Sending array
           }),
-        }
+        },
       );
 
       if (!saveRes.ok) throw new Error("Failed to save file code");
@@ -236,7 +236,7 @@ const UploadPage = () => {
 
     try {
       await axios.delete(
-        `${import.meta.env.VITE_BACKEND_URL}/api/files/${uploadCode}`
+        `${import.meta.env.VITE_BACKEND_URL}/api/files/${uploadCode}`,
       );
 
       // Reset the UI after successful delete
@@ -259,194 +259,174 @@ const UploadPage = () => {
 
   return (
     <div
-      className={` ${
-        hasUploaded ? "min-h-[calc(105vh)]" : "min-h-[calc(100vh-100px)]"
-      } flex flex-col items-center justify-center mb-10 `}
+      className={`flex flex-col items-center justify-center px-4 ${hasUploaded ? "py-16" : "min-h-[calc(100vh-100px)]"} transition-all duration-300`}
     >
-      <h2 className="text-3xl font-bold text-blue-600 dark:text-blue-500 pt-28 mb-6">
-        Upload Files
-      </h2>
+      <div className="glass-card flex flex-col items-center p-8 bg-white/70 dark:bg-neutral-800/70 backdrop-blur-lg border border-gray-200 dark:border-neutral-700/50 rounded-2xl shadow-xl w-full max-w-xl mx-auto">
+        <h2 className="text-2xl font-bold text-blue-600 dark:text-blue-500 mb-6 text-center">
+          Cloud Upload
+        </h2>
 
-      {/* Drag-and-Drop Zone */}
-      <div
-        onDrop={handleDrop}
-        onDragOver={(e) => e.preventDefault()}
-        className="w-full max-w-xl h-48 border-2 flex flex-col items-center justify-center border-dashed border-blue-400 rounded-lg text-center text-gray-600 dark:hover:bg-blue-950 hover:bg-blue-50 transition mb-6 px-4"
-      >
-        {selectedFiles.length > 0 ? (
-          <div className="text-blue-600 dark:text-blue-500">
-            <p className="font-bold text-lg mb-1">
-              {selectedFiles.length} files selected
-            </p>
-            <ul className="text-sm opacity-80 list-none">
-              {selectedFiles.slice(0, 3).map((f, i) => (
-                <li key={i}>{f.name}</li>
-              ))}
-              {selectedFiles.length > 3 && (
-                <li>...and {selectedFiles.length - 3} more</li>
+        {!hasUploaded ? (
+          <div className="w-full flex flex-col gap-4">
+            <label
+              onDrop={handleDrop}
+              onDragOver={(e) => e.preventDefault()}
+              className="relative flex flex-col items-center justify-center w-full py-10 px-4 border-2 border-dashed border-blue-300 dark:border-blue-700/50 rounded-xl bg-blue-50/50 dark:bg-blue-900/10 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors cursor-pointer group"
+            >
+              <input
+                type="file"
+                id="fileInput"
+                multiple
+                onChange={handleFileChange}
+                className="hidden"
+              />
+
+              {selectedFiles.length > 0 ? (
+                <div className="text-blue-700 dark:text-blue-400 flex flex-col items-center text-center">
+                  <p className="font-semibold text-lg mb-1">
+                    {selectedFiles.length} files selected
+                  </p>
+                  <ul className="text-sm opacity-80 list-none">
+                    {selectedFiles.slice(0, 3).map((f, i) => (
+                      <li key={i} className="truncate max-w-[250px]">
+                        {f.name}
+                      </li>
+                    ))}
+                    {selectedFiles.length > 3 && (
+                      <li>...and {selectedFiles.length - 3} more</li>
+                    )}
+                  </ul>
+                  <div className="bg-white/50 dark:bg-black/20 px-3 py-1 rounded-full text-xs font-medium mt-3">
+                    Total:{" "}
+                    {(
+                      selectedFiles.reduce((acc, f) => acc + f.size, 0) /
+                      1024 /
+                      1024
+                    ).toFixed(2)}{" "}
+                    MB
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-2 text-blue-500 dark:text-blue-400">
+                  <LuUpload className="w-10 h-10 group-hover:scale-110 transition-transform" />
+                  <p className="font-medium text-center">
+                    Click or drag files here
+                  </p>
+                  <span className="text-xs opacity-70">Up to 150MB total</span>
+                </div>
               )}
-            </ul>
-            <p className="text-xs mt-2 opacity-70">
-              Total:{" "}
-              {(
-                selectedFiles.reduce((acc, f) => acc + f.size, 0) /
-                1024 /
-                1024
-              ).toFixed(2)}{" "}
-              MB
-            </p>
+            </label>
+
+            {loading && (
+              <div className="w-full mt-2">
+                <div className="flex justify-between mb-1.5 px-1">
+                  <span className="text-xs font-medium text-blue-700 dark:text-blue-400">
+                    Uploading {currentFileIndex}/{selectedFiles.length}...
+                  </span>
+                  <span className="text-xs font-medium text-blue-700 dark:text-blue-400">
+                    {uploadProgress}%
+                  </span>
+                </div>
+                <div className="w-full bg-gray-100 dark:bg-neutral-700 rounded-full h-2 overflow-hidden">
+                  <div
+                    className="bg-blue-600 dark:bg-blue-500 h-full rounded-full transition-all duration-300 ease-out"
+                    style={{ width: `${uploadProgress}%` }}
+                  ></div>
+                </div>
+              </div>
+            )}
+
+            <button
+              onClick={handleUpload}
+              disabled={selectedFiles.length === 0 || loading}
+              className="w-full bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 transition-all disabled:bg-gray-300 dark:disabled:bg-neutral-700 disabled:text-gray-500 dark:disabled:text-neutral-500 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none mt-2 flex items-center justify-center gap-2"
+            >
+              {loading ? "Uploading..." : "Start Upload"}
+            </button>
+            {error && (
+              <p className="text-red-500 text-sm font-medium text-center">
+                {error}
+              </p>
+            )}
           </div>
         ) : (
-          <p className="dark:text-neutral-100">
-            Drag and drop files here <br />
-            <span className="text-xs opacity-70">(150MB Total)</span>
+          <div className="w-full flex flex-col items-center gap-6">
+            <ExpiryTimer createdAt={uploadTime} />
+
+            <div className="text-center w-full flex flex-col items-center">
+              <p className="text-gray-500 dark:text-gray-400 text-sm font-medium mb-2">
+                Your download code
+              </p>
+              <div className="flex items-center justify-center gap-3 bg-white dark:bg-neutral-900/50 py-4 px-6 rounded-xl border border-gray-100 dark:border-neutral-700 w-full mb-2">
+                <h1 className="text-4xl dark:text-white text-neutral-900 font-mono font-bold tracking-widest">
+                  {uploadCode}
+                </h1>
+                <button
+                  onClick={handleCopy}
+                  className="p-2.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg cursor-pointer transition-colors"
+                  title="Copy Code"
+                >
+                  {copied ? <FiCheckCircle size={20} /> : <FiCopy size={20} />}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex flex-col items-center gap-3 bg-white/50 dark:bg-neutral-900/30 p-4 rounded-xl border border-gray-100 dark:border-neutral-700/50 w-full">
+              <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                Scan to download
+              </span>
+              <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-100">
+                <QRCode
+                  value={`${window.location.origin}/download/${uploadCode}`}
+                  size={130}
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 w-full mt-2">
+              <button
+                onClick={handleReset}
+                className="flex-1 bg-gray-100 dark:bg-neutral-700 text-gray-700 dark:text-neutral-200 font-semibold py-3 rounded-xl hover:bg-gray-200 dark:hover:bg-neutral-600 transition-all flex items-center justify-center"
+              >
+                Upload More
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="flex-1 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-semibold py-3 rounded-xl border border-red-200 dark:border-red-800/50 hover:bg-red-100 dark:hover:bg-red-900/40 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {isDeleting ? (
+                  "Deleting..."
+                ) : (
+                  <>
+                    <FiTrash2 className="w-4 h-4" /> Delete Now
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {!hasUploaded && (
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-6 text-center">
+            By uploading, you agree to our{" "}
+            <Link
+              to="/usage"
+              className="text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              Usage Guide
+            </Link>{" "}
+            &{" "}
+            <Link
+              to="/privacy"
+              className="text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              Privacy Policy
+            </Link>
+            .
           </p>
         )}
       </div>
-
-      <input
-        type="file"
-        id="fileInput"
-        name="file"
-        multiple // Enable multiple selection
-        onChange={handleFileChange}
-        className="hidden"
-      />
-
-      <label
-        htmlFor="fileInput"
-        onClick={hasUploaded ? handleReset : undefined}
-        className="glass-card interactive dark:rounded-4xl dark:px-9 dark:py-3.5 cursor-pointer px-7 py-3 mb-4 bg-white border-2 border-blue-500 text-blue-500 rounded-md font-semibold hover:bg-blue-500 hover:shadow-md/50 hover:text-white transition duration-200"
-      >
-        {hasUploaded ? "Upload New Files" : "Choose Files"}
-      </label>
-
-      {/* Upload Button / Progress Bar */}
-      {loading ? (
-        <div className="w-full max-w-xs mb-4">
-          <div className="flex justify-between mb-1">
-            <span className="text-sm font-medium text-blue-700 dark:text-white">
-              Uploading {currentFileIndex}/{selectedFiles.length}...
-            </span>
-            <span className="text-sm font-medium text-blue-700 dark:text-white">
-              {uploadProgress}%
-            </span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-            <div
-              className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-out"
-              style={{ width: `${uploadProgress}%` }}
-            ></div>
-          </div>
-        </div>
-      ) : (
-        <button
-          onClick={handleUpload}
-          disabled={hasUploaded || selectedFiles.length === 0}
-          className={`flex items-center gap-2 dark:rounded-4xl dark:px-9 dark:py-3.5 px-7 py-3 mb-4 cursor-pointer disabled:cursor-not-allowed rounded-md font-semibold transition duration-200 
-            ${
-              hasUploaded || selectedFiles.length === 0
-                ? "bg-gray-300 dark:bg-neutral-700 dark:text-neutral-200 text-gray-600 cursor-not-allowed"
-                : "bg-blue-500 dark:bg-blue-600 dark:hover:bg-blue-700 text-white hover:bg-blue-600 hover:shadow-md/50"
-            }`}
-        >
-          {hasUploaded ? "Files Uploaded!" : uploadText}
-        </button>
-      )}
-
-      {/* Upload Code Display */}
-      {uploadCode && (
-        <div className="mt-4 flex flex-col items-center gap-4 text-black dark:text-neutral-50 font-medium text-2xl">
-          {/* EXPIRY TIMER */}
-          <ExpiryTimer createdAt={uploadTime} />
-          <div className="flex items-center gap-4">
-            <span>
-              <strong className="text-blue-500 mr-2">Code: </strong>{" "}
-              {uploadCode}
-            </span>
-            {/* COPY BUTTON */}
-            <button
-              onClick={handleCopy}
-              className="px-2 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600 transition text-sm"
-            >
-              {copied ? "Copied!" : <FiCopy size={20} />}
-            </button>
-          </div>
-          {/* DELETE BUTTON */}
-          <button
-            onClick={handleDelete}
-            disabled={isDeleting}
-            className={`glass-btn-red flex items-center gap-2 dark:rounded-4xl dark:px-9 dark:py-3.5 text-base cursor-pointer px-7 py-3 mt-2  bg-neutral-50 border border-red-500 text-red-500 rounded-md font-semibold hover:bg-red-500 hover:shadow-md/50 hover:text-white transition duration-200
-              ${isDeleting ? "opacity-70 cursor-wait" : ""}`}
-          >
-            {isDeleting ? (
-              <>
-                <Oval
-                  height={20}
-                  width={20}
-                  color="#ef4444"
-                  secondaryColor="#ef4444"
-                  strokeWidth={4}
-                />
-                <span className="text-red-500">Deleting...</span>
-              </>
-            ) : (
-              <>
-                <FiTrash2 className="w-5 h-5" />
-                <span>Delete Now</span>
-              </>
-            )}
-          </button>
-        </div>
-      )}
-
-      {!hasUploaded && (
-        <p className="text-sm text-gray-600 dark:text-gray-300 mt-6 mb-4 text-center">
-          Please read our{" "}
-          <Link
-            to="/usage"
-            className="text-blue-600 hover:underline dark:text-blue-500 hover:text-blue-800 dark:hover:text-blue-700"
-          >
-            Usage Guide
-          </Link>{" "}
-          and{" "}
-          <Link
-            to="/privacy"
-            className="text-blue-600 hover:underline dark:text-blue-500 hover:text-blue-800 dark:hover:text-blue-700"
-          >
-            Privacy Policy
-          </Link>{" "}
-          before using QuickDrop.
-        </p>
-      )}
-
-      {uploadCode.length > 0 && (
-        <div className="mt-6 flex flex-col items-center gap-2">
-          <span className="text-gray-700 dark:text-gray-200 font-medium">
-            Scan to download
-          </span>
-          <div className="bg-white p-4 rounded shadow">
-            <QRCode
-              value={`${window.location.origin}/download/${uploadCode}`}
-              size={150}
-            />
-          </div>
-          <p className="text-sm text-gray-600 dark:text-gray-200 mt-3 text-center break-all">
-            Download Link:{" "}
-            <a
-              href={`${window.location.origin}/download/${uploadCode}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 underline"
-            >
-              {`${window.location.origin}/download/${uploadCode}`}
-            </a>
-          </p>
-        </div>
-      )}
-
-      {/* Error Message */}
-      {error && <div className="mt-4 text-red-500 font-medium">{error}</div>}
     </div>
   );
 };

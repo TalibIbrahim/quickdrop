@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import Peer from "peerjs";
 import axios from "axios";
+import { Oval } from "react-loader-spinner";
+import { FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 
 const Receiver = () => {
   const [code, setCode] = useState("");
@@ -134,38 +136,89 @@ const Receiver = () => {
     });
   };
 
+  // badge styling based on status string content
+  const isSuccess =
+    status.includes("Connected") ||
+    status.includes("Received") ||
+    status.includes("Receiving");
+  const isError =
+    status.includes("error") ||
+    status.includes("Invalid") ||
+    status.includes("failed");
+
   return (
-    <div className="flex flex-col items-center gap-6 p-6 bg-white dark:bg-neutral-800 rounded-lg shadow-lg">
-      <h2 className="text-2xl font-bold text-blue-600">Receiver Mode</h2>
+    <div className="glass-card flex flex-col items-center p-8 bg-white/70 dark:bg-neutral-800/70 backdrop-blur-lg border border-gray-200 dark:border-neutral-700/50 rounded-2xl shadow-xl w-full max-w-md mx-auto">
+      <h2 className="text-2xl font-bold text-blue-600 dark:text-blue-500 mb-6">
+        Receiver Mode
+      </h2>
 
-      {!isDownloading && (
-        <div className="flex gap-2">
-          <input
-            type="text"
-            placeholder="123456"
-            maxLength={6}
-            onChange={(e) => setCode(e.target.value.toUpperCase())}
-            className="border p-2 rounded text-center tracking-widest text-xl font-mono uppercase"
-          />
-          <button
-            onClick={joinRoom}
-            className="bg-blue-600 text-white px-4 py-2 rounded"
-          >
-            Join
-          </button>
+      <div className="w-full flex flex-col items-center gap-4">
+        {/* Dynamic Status Badge */}
+        <div
+          className={`flex items-center justify-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors w-full text-center ${
+            isSuccess
+              ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800/50"
+              : isError
+                ? "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/50"
+                : "bg-gray-50 dark:bg-neutral-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-neutral-700"
+          }`}
+        >
+          {isSuccess ? (
+            <FiCheckCircle className="w-4 h-4 shrink-0" />
+          ) : isError ? (
+            <FiAlertCircle className="w-4 h-4 shrink-0" />
+          ) : status === "Looking for room..." ? (
+            <Oval
+              height={14}
+              width={14}
+              color="#3B82F6"
+              secondaryColor="#93C5FD"
+              strokeWidth={4}
+            />
+          ) : null}
+          <span className="truncate">{status}</span>
         </div>
-      )}
 
-      <p className="text-gray-500 mt-4">{status}</p>
+        {!isDownloading && (
+          <div className="w-full flex flex-col gap-4 mt-2">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="ENTER CODE"
+                maxLength={6}
+                onChange={(e) => setCode(e.target.value.toUpperCase())}
+                className="w-full border-2 border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900/50 p-4 rounded-xl text-center tracking-[0.5em] text-2xl font-mono uppercase focus:outline-none focus:border-blue-500 dark:focus:border-blue-500 transition-colors dark:text-white placeholder:text-gray-300 dark:placeholder:text-gray-600 placeholder:tracking-normal"
+              />
+            </div>
+            <button
+              onClick={joinRoom}
+              disabled={code.length < 1}
+              className="w-full bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 transition-all disabled:bg-gray-300 dark:disabled:bg-neutral-700 disabled:text-gray-500 dark:disabled:text-neutral-500 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+            >
+              Connect to Peer
+            </button>
+          </div>
+        )}
 
-      {progress > 0 && (
-        <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
-          <div
-            className="bg-blue-600 h-2.5 rounded-full"
-            style={{ width: `${progress}%` }}
-          ></div>
-        </div>
-      )}
+        {progress > 0 && (
+          <div className="w-full mt-2">
+            <div className="flex justify-between mb-1.5 px-1">
+              <span className="text-xs font-medium text-blue-700 dark:text-blue-400">
+                Downloading...
+              </span>
+              <span className="text-xs font-medium text-blue-700 dark:text-blue-400">
+                {progress}%
+              </span>
+            </div>
+            <div className="w-full bg-gray-100 dark:bg-neutral-700 rounded-full h-2 overflow-hidden">
+              <div
+                className="bg-blue-600 dark:bg-blue-500 h-full rounded-full transition-all duration-300 ease-out"
+                style={{ width: `${progress}%` }}
+              ></div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
