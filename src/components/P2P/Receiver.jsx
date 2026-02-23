@@ -8,6 +8,7 @@ const Receiver = () => {
   const [code, setCode] = useState("");
   const [status, setStatus] = useState("Enter code to join");
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
   const [progress, setProgress] = useState(0);
 
   const peerRef = useRef(null); // Keep peer instance alive across renders
@@ -29,7 +30,7 @@ const Receiver = () => {
       );
 
       const hostPeerID = res.data.peerID;
-      console.log("Found PEER ID: ", hostPeerID);
+      // console.log("Found PEER ID: ", hostPeerID);
 
       //2. connect to the peer id
       const peer = new Peer({
@@ -68,7 +69,7 @@ const Receiver = () => {
         debug: 2,
       });
 
-      console.log("Connecting to peer: ", peer);
+      // console.log("Connecting to peer: ", peer);
 
       peerRef.current = peer;
 
@@ -93,9 +94,10 @@ const Receiver = () => {
     let receivedSize = 0;
     let buffer = []; // array of chunks that will be reassembled to form the full file later
     let metadata = {};
-    console.log("INSIDE setup connection");
+    // console.log("INSIDE setup connection");
 
     conn.on("open", () => {
+      setIsConnected(true);
       setStatus("Connected! Waiting for file...");
     });
 
@@ -106,6 +108,7 @@ const Receiver = () => {
     });
 
     conn.on("close", () => {
+      setIsConnected(false);
       setStatus("Connection closed.");
     });
 
@@ -131,6 +134,7 @@ const Receiver = () => {
 
         setStatus("File Received!");
         setIsDownloading(false);
+        setProgress(0);
         setTimeout(() => setStatus("Waiting for next file..."), 3000);
       }
     });
@@ -179,7 +183,7 @@ const Receiver = () => {
           <span className="truncate">{status}</span>
         </div>
 
-        {!isDownloading && (
+        {!isConnected && (
           <div className="w-full flex flex-col gap-4 mt-2">
             <div className="relative">
               <input

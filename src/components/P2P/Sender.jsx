@@ -218,7 +218,13 @@ const Sender = ({ onBack }) => {
             <input
               type="file"
               className="hidden"
-              onChange={(e) => setFile(e.target.files[0])}
+              onChange={(e) => {
+                if (e.target.files[0]) {
+                  setFile(e.target.files[0]);
+                  setProgress(0); // resets progress to enable the send button
+                  setStatus("Ready to send!"); // updates the UI status
+                }
+              }}
             />
             {file ? (
               <div className="flex items-center gap-3 text-blue-700 dark:text-blue-400">
