@@ -135,7 +135,11 @@ const Receiver = () => {
         setStatus("File Received!");
         setIsDownloading(false);
         setProgress(0);
-        setTimeout(() => setStatus("Waiting for next file..."), 3000);
+        setTimeout(() => {
+          setStatus((prev) =>
+            prev === "File Received!" ? "Waiting for next file..." : prev,
+          );
+        }, 3000);
       }
     });
   };

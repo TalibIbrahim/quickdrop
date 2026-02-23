@@ -221,9 +221,11 @@ const Sender = ({ onBack }) => {
               onChange={(e) => {
                 if (e.target.files[0]) {
                   setFile(e.target.files[0]);
-                  setProgress(0); // resets progress to enable the send button
-                  setStatus("Ready to send!"); // updates the UI status
+                  setProgress(0);
+                  setStatus("Ready to send!");
                 }
+                // reset the input value so the browser registers a change
+                e.target.value = null;
               }}
             />
             {file ? (
@@ -262,13 +264,26 @@ const Sender = ({ onBack }) => {
             </div>
           )}
 
-          <button
-            onClick={sendFile}
-            disabled={!file || progress === 100}
-            className="w-full bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 transition-all disabled:bg-gray-300 dark:disabled:bg-neutral-700 disabled:text-gray-500 dark:disabled:text-neutral-500 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none mt-2"
-          >
-            {progress === 100 ? "Transfer Complete" : "Send File"}
-          </button>
+          {progress === 100 ? (
+            <button
+              onClick={() => {
+                setFile(null);
+                setProgress(0);
+                setStatus("Ready for next file!");
+              }}
+              className="w-full bg-green-600 text-white font-semibold py-3 rounded-xl hover:bg-green-700 hover:shadow-lg hover:-translate-y-0.5 transition-all mt-2"
+            >
+              Send Another File
+            </button>
+          ) : (
+            <button
+              onClick={sendFile}
+              disabled={!file || progress > 0} // Prevents double-clicking during transfer
+              className="w-full bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 transition-all disabled:bg-gray-300 dark:disabled:bg-neutral-700 disabled:text-gray-500 dark:disabled:text-neutral-500 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none mt-2"
+            >
+              {progress > 0 ? "Transferring..." : "Send File"}
+            </button>
+          )}
         </div>
       )}
     </div>
