@@ -40,12 +40,12 @@ const LocalRadar = ({ onBack }) => {
 
     // 2. Add these diagnostic logs to see EXACTLY what your browser is doing
     socket.on("connect", () => {
-      console.log("✅ Socket officially connected with ID:", socket.id);
+      console.log("Socket connected with ID");
     });
 
     socket.on("connect_error", (err) => {
-      console.error("❌ Socket Connection Error:", err.message);
-      console.error("Full error object:", err);
+      console.error("Socket Connection Error:", err.message);
+      //   console.error("Full error object:", err);
     });
 
     socket.on("disconnect", (reason) => {
