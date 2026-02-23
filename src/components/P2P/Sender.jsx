@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Peer from "peerjs";
 import axios from "axios";
 import { Oval } from "react-loader-spinner";
@@ -12,6 +12,8 @@ const Sender = ({ onBack }) => {
   const [file, setFile] = useState(null);
   const [progress, setProgress] = useState(0);
   const [copied, setCopied] = useState(false); // Copied state
+
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     // 1. Create peer object. The peer object is where we create and receive connections
@@ -129,6 +131,8 @@ const Sender = ({ onBack }) => {
         await readNextChunk();
       } else {
         conn.send({ type: "end" });
+        setProgress(100);
+
         setStatus("Sent Successfully!");
       }
     };
@@ -218,6 +222,7 @@ const Sender = ({ onBack }) => {
             <input
               type="file"
               className="hidden"
+              ref={fileInputRef}
               onChange={(e) => {
                 if (e.target.files[0]) {
                   setFile(e.target.files[0]);
@@ -249,7 +254,7 @@ const Sender = ({ onBack }) => {
             <div className="w-full">
               <div className="flex justify-between mb-1.5 px-1">
                 <span className="text-xs font-medium text-blue-700 dark:text-blue-400">
-                  Transferring...
+                  {progress === 100 ? "Transfer Complete!" : "Transferring..."}
                 </span>
                 <span className="text-xs font-medium text-blue-700 dark:text-blue-400">
                   {progress}%
@@ -270,6 +275,9 @@ const Sender = ({ onBack }) => {
                 setFile(null);
                 setProgress(0);
                 setStatus("Ready for next file!");
+                if (fileInputRef.current) {
+                  fileInputRef.current.value = "";
+                }
               }}
               className="w-full bg-green-600 text-white font-semibold py-3 rounded-xl hover:bg-green-700 hover:shadow-lg hover:-translate-y-0.5 transition-all mt-2"
             >
