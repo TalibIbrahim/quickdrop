@@ -84,12 +84,15 @@ const LocalRadar = ({ onBack }) => {
     socket.on("peer-joined", (userData) => {
       console.log("New device discovered:", userData.name);
       setActivePeers((prev) => ({ ...prev, [userData.peerId]: userData }));
+    });
 
-      // If someone joins AFTER us, we need to politely introduce ourselves back to them
-      if (peerRef.current && peerRef.current.id) {
-        // We can broadcast our presence again, or handle a direct 'hello' event.
-        // For now, let's keep it simple.
-      }
+    // catch the list of people already in the room when we join
+    socket.on("sync-peers", (peersList) => {
+      const peersObj = {};
+      peersList.forEach((p) => {
+        peersObj[p.peerId] = p;
+      });
+      setActivePeers((prev) => ({ ...prev, ...peersObj }));
     });
 
     // When a device leaves our Wi-Fi room
