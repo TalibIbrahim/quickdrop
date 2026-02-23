@@ -259,9 +259,9 @@ const UploadPage = () => {
 
   return (
     <div
-      className={`flex flex-col items-center justify-center px-4 ${hasUploaded ? "py-16" : "min-h-[calc(100vh-100px)]"} transition-all duration-300`}
+      className={`flex flex-col items-center justify-center relative dark:top-16 bottom-16  px-4 ${hasUploaded ? "my-16" : "min-h-[calc(100vh-100px)]"} transition-all duration-300`}
     >
-      <div className="glass-card flex flex-col items-center p-8 bg-white/70 dark:bg-neutral-800/70 backdrop-blur-lg border border-gray-200 dark:border-neutral-700/50 rounded-2xl shadow-xl w-full max-w-xl mx-auto">
+      <div className="glass-card flex flex-col items-center p-8 bg-white/70 dark:bg-neutral-800/70 mt-24 backdrop-blur-lg border border-gray-200 dark:border-neutral-700/50 rounded-2xl shadow-xl w-full max-w-xl mx-auto">
         <h2 className="text-2xl font-bold text-blue-600 dark:text-blue-500 mb-6 text-center">
           Cloud Upload
         </h2>

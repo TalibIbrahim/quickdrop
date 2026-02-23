@@ -9,7 +9,7 @@ const SharePage = () => {
   const [mode, setMode] = useState(null);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 text-white">
+    <div className="min-h-[95vh] flex flex-col items-center relative bottom-10 dark:top-12 justify-center px-4 text-white">
       <h2 className="text-3xl font-bold text-blue-600 dark:text-blue-500 mb-12">
         Direct Share (P2P)
       </h2>

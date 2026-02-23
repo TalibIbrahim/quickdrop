@@ -1,6 +1,6 @@
 const UsagePage = () => {
   return (
-    <div className="max-w-2xl mx-auto px-4 py-16 dark:py-28 text-gray-800 dark:text-neutral-200">
+    <div className="max-w-2xl mx-auto px-4 py-20 dark:mt-28 relative text-gray-800 dark:text-neutral-200">
       <h1 className="text-3xl font-bold mb-6 text-center text-blue-600">
         Usage Guide
       </h1>

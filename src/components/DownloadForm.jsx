@@ -14,7 +14,7 @@ const DownloadForm = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-100px)] flex flex-col items-center justify-center px-4">
+    <div className="min-h-[calc(100vh-100px)] flex flex-col items-center justify-center px-4 dark:top-20 relative">
       <div className="glass-card flex flex-col items-center p-8 bg-white/70 dark:bg-neutral-800/70 backdrop-blur-lg border border-gray-200 dark:border-neutral-700/50 rounded-2xl shadow-xl w-full max-w-md mx-auto">
         <h2 className="text-2xl font-bold text-blue-600 dark:text-blue-500 mb-6 text-center">
           Download File
@@ -24,6 +24,7 @@ const DownloadForm = () => {
           <input
             type="text"
             placeholder="ENTER CODE"
+            maxLength={6}
             value={code}
             onChange={(e) => setCode(e.target.value.toUpperCase())}
             className="w-full border-2 border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900/50 p-4 rounded-xl text-center tracking-[0.3em] text-xl font-mono uppercase focus:outline-none focus:border-blue-500 dark:focus:border-blue-500 transition-colors dark:text-white placeholder:text-gray-300 dark:placeholder:text-gray-600 placeholder:tracking-normal"

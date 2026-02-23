@@ -47,7 +47,7 @@ const Navbar = () => {
         {/* HAMBURGER MENU BUTTON */}
         <button
           onClick={() => setIsOpen(true)}
-          className="md:hidden text-neutral-200 focus:outline-none z-50 hover:text-blue-500 transition-colors"
+          className="md:hidden text-neutral-200 focus:outline-none z-50 mr-4 hover:text-blue-500 transition-colors"
           aria-label="Open Menu"
         >
           <svg

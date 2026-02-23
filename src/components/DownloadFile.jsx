@@ -148,7 +148,7 @@ const DownloadFile = () => {
     0;
 
   return (
-    <div className="min-h-[calc(100vh-100px)] flex flex-col items-center justify-center px-4">
+    <div className="min-h-[calc(100vh-100px)] flex flex-col relative dark:top-20 items-center justify-center px-4">
       <div className="glass-card flex flex-col items-center p-8 bg-white/70 dark:bg-neutral-800/70 backdrop-blur-lg border border-gray-200 dark:border-neutral-700/50 rounded-2xl shadow-xl w-full max-w-md mx-auto">
         <h2 className="text-2xl font-bold text-blue-600 dark:text-blue-500 mb-6 text-center">
           Download Ready

@@ -41,7 +41,7 @@ const Home = () => {
           />
         )}
       </div>
-      <div className="min-h-[calc(100vh-150px)] flex flex-col pt-56 items-center px-4">
+      <div className="min-h-[calc(100vh-150px)] flex flex-col pt-28 relative justify-center items-center px-4 z-10">
         <h1
           style={{
             fontFamily: '"Poppins", sans-serif',
@@ -65,6 +65,10 @@ const Home = () => {
         <TypeAnimation
           sequence={[
             // Same substring at the start will only be typed once, initially
+            "Now with P2P File Sharing! - Send files directly",
+            1500,
+            "You can send files directly by using P2P share",
+            1500,
             "Send files instantly — no login needed",
             1500,
             "Send files instantly — to anyone, anywhere",
