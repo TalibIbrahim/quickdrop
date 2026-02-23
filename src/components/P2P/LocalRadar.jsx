@@ -25,12 +25,16 @@ const LocalRadar = ({ onBack }) => {
     const myIdentity = generateRandomUser();
 
     // Initialize Socket.io (Connect to Render URL)
-    const socket = io(
-      import.meta.env.VITE_SIGNALING_URL.replace("/myapp", ""),
-      {
-        transports: ["websocket"],
-      },
+
+    const signalingDomain = import.meta.env.VITE_SIGNALING_URL.replace(
+      "/myapp",
+      "",
     );
+
+    // Explicitly prepend https:// to satisfy Vercel's secure context
+    const socket = io(`https://${signalingDomain}`, {
+      transports: ["websocket"],
+    });
     socketRef.current = socket;
 
     // Initialize PeerJS (existing metered.ca config goes here later)
