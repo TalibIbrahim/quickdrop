@@ -249,7 +249,7 @@ const LocalRadar = ({ onBack }) => {
   };
 
   return (
-    <div className="glass-card flex flex-col items-center p-8 bg-white/70 dark:bg-neutral-800/70 backdrop-blur-lg border border-gray-200 dark:border-neutral-700/50 rounded-2xl shadow-xl w-full max-w-4xl mx-auto min-h-[60vh] relative overflow-hidden">
+    <div className="glass-card flex flex-col items-center p-8 dark:mt-20 bg-white/70 dark:bg-neutral-800/70 backdrop-blur-lg border border-gray-200 dark:border-neutral-700/50 rounded-2xl shadow-xl w-full max-w-4xl mx-auto min-h-[60vh] relative overflow-hidden">
       {/* Hidden File Input */}
       <input
         type="file"

@@ -13,7 +13,7 @@ const LayoutWrapper = (props) => {
   return (
     <>
       <Navbar />
-      <main className="bg-gradient-to-b from-white to-neutral-50  dark:bg-none dark:min-h-[95vh] dark:bg-neutral-950 transition-colors duration-300 ease-in-out">
+      <main className="bg-gradient-to-b from-white to-neutral-50  dark:bg-none dark:min-h-screen dark:bg-neutral-950 transition-colors duration-300 ease-in-out">
         {props.children}
       </main>
       <Footer />
