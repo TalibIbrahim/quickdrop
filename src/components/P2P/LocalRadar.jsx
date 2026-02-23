@@ -26,16 +26,31 @@ const LocalRadar = ({ onBack }) => {
 
     // Initialize Socket.io (Connect to Render URL)
 
-    const signalingDomain = import.meta.env.VITE_SIGNALING_URL.replace(
+    const signalingDomain = import.meta.env.VITE_SIGNALING_URL?.replace(
       "/myapp",
       "",
     );
 
-    // Explicitly prepend https:// to satisfy Vercel's secure context
     const socket = io(`https://${signalingDomain}`, {
-      transports: ["websocket"],
+      secure: true, // Explicitly tell Render to use HTTPS/WSS
+      rejectUnauthorized: false,
+      //   timeout: 10000, // Shorten timeout to 10s for faster debugging
     });
     socketRef.current = socket;
+
+    // 2. Add these diagnostic logs to see EXACTLY what your browser is doing
+    socket.on("connect", () => {
+      console.log("✅ Socket officially connected with ID:", socket.id);
+    });
+
+    socket.on("connect_error", (err) => {
+      console.error("❌ Socket Connection Error:", err.message);
+      console.error("Full error object:", err);
+    });
+
+    socket.on("disconnect", (reason) => {
+      console.warn("⚠️ Socket disconnected. Reason:", reason);
+    });
 
     // Initialize PeerJS (existing metered.ca config goes here later)
     const peer = new Peer({
