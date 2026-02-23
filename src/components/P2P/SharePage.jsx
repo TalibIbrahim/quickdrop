@@ -4,6 +4,7 @@ import Receiver from "./Receiver";
 
 import { LuLogIn, LuArrowLeft } from "react-icons/lu";
 import { GoHome } from "react-icons/go";
+import LocalRadar from "./LocalRadar";
 
 const SharePage = () => {
   const [mode, setMode] = useState(null);
@@ -31,12 +32,21 @@ const SharePage = () => {
             <span>Join Room</span>
             <LuLogIn className="w-5 h-5" strokeWidth={2.5} />
           </button>
+
+          <button
+            onClick={() => setMode("radar")}
+            className="glass-card interactive dark:rounded-4xl dark:py-3.5 cursor-pointer w-64 py-3 bg-white border-2 border-blue-500 text-blue-500 rounded-md font-semibold hover:bg-blue-500 hover:shadow-md/50 hover:text-white transition duration-200 flex items-center justify-center gap-3"
+          >
+            <span>Local Radar</span>
+            {/* You can import a radar icon from react-icons/md like MdRadar */}
+          </button>
         </div>
       )}
 
       {/* Renders the selected component */}
       {mode === "send" && <Sender onBack={() => setMode(null)} />}
       {mode === "receive" && <Receiver onBack={() => setMode(null)} />}
+      {mode === "radar" && <LocalRadar onBack={() => setMode(null)} />}
 
       {mode && (
         <button
