@@ -115,7 +115,7 @@ const Sender = ({ onBack }) => {
     // 5. Chunking Logic
     // We can't send large files (1Gb+) all at once. So, we have to create chunks of data.
 
-    const CHUNK_SIZE = 16 * 1024; //16KB
+    const CHUNK_SIZE = 32 * 1024; //32KB
     let offset = 0;
 
     const reader = new FileReader(); // web interface to read files
@@ -207,7 +207,7 @@ const Sender = ({ onBack }) => {
             {code && (
               <button
                 onClick={handleCopy}
-                className="p-2.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg cursor-pointer transition-colors"
+                className="p-2.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 cursor-pointer dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg cursor-pointer transition-colors"
                 title="Copy Code"
               >
                 {copied ? <FiCheckCircle size={20} /> : <FiCopy size={20} />}
@@ -279,7 +279,7 @@ const Sender = ({ onBack }) => {
                   fileInputRef.current.value = "";
                 }
               }}
-              className="w-full bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 transition-all mt-2"
+              className="w-full bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all mt-2"
             >
               Send Another File
             </button>
@@ -287,7 +287,7 @@ const Sender = ({ onBack }) => {
             <button
               onClick={sendFile}
               disabled={!file || progress > 0} // Prevents double-clicking during transfer
-              className="w-full bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 transition-all disabled:bg-gray-300 dark:disabled:bg-neutral-700 disabled:text-gray-500 dark:disabled:text-neutral-500 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none mt-2"
+              className="w-full bg-blue-600 text-white font-semibold py-3 rounded-xl cursor-pointer hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 transition-all disabled:bg-gray-300 dark:disabled:bg-neutral-700 disabled:text-gray-500 dark:disabled:text-neutral-500 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none mt-2"
             >
               {progress > 0 ? "Transferring..." : "Send File"}
             </button>

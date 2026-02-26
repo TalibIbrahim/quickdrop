@@ -202,7 +202,7 @@ const LocalRadar = ({ onBack }) => {
       });
 
       // Chunking Logic
-      const CHUNK_SIZE = 16 * 1024;
+      const CHUNK_SIZE = 32 * 1024;
       let offset = 0;
       const reader = new FileReader();
 
@@ -333,7 +333,7 @@ const LocalRadar = ({ onBack }) => {
 
         <button
           onClick={onBack}
-          className="mt-auto text-blue-500 hover:text-blue-600 underline"
+          className="mt-auto text-blue-500 hover:text-blue-600 underline cursor-pointer"
         >
           Exit Radar
         </button>
