@@ -1,6 +1,12 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* --- Responsive Base --- */
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
 body {
   font-family: "Poppins", sans-serif;
 }
@@ -119,4 +125,43 @@ body {
 .glass-btn-red:disabled {
   opacity: 0.6;
   cursor: wait;
+}
+
+/* ---- P2P Share Button ---- */
+/* Light mode: solid purple-to-blue gradient */
+.p2p-btn {
+  background: linear-gradient(135deg, #6d28d9, #2563eb);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 4px 20px rgba(109, 40, 217, 0.35);
+  transition: all 0.3s ease;
+}
+
+.p2p-btn:hover {
+  background: linear-gradient(135deg, #5b21b6, #1d4ed8);
+  box-shadow: 0 6px 28px rgba(109, 40, 217, 0.5);
+}
+
+/* Dark mode: glassy purple-tinted variant */
+.dark .p2p-btn {
+  background: rgba(109, 40, 217, 0.15);
+  color: #c4b5fd; /* violet-300 */
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  box-shadow:
+    0 8px 32px rgba(109, 40, 217, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(139, 92, 246, 0.2);
+  -webkit-backdrop-filter: blur(40px);
+  backdrop-filter: blur(40px);
+  border-radius: 999px; /* pill shape in dark mode to match other dark buttons */
+}
+
+.dark .p2p-btn:hover {
+  background: rgba(139, 92, 246, 0.25);
+  border-color: rgba(139, 92, 246, 0.6);
+  color: #ede9fe; /* violet-100 */
+  box-shadow:
+    0 8px 32px rgba(109, 40, 217, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(139, 92, 246, 0.3);
 }

@@ -1,6 +1,6 @@
 import { TypeAnimation } from "react-type-animation";
 import { useNavigate } from "react-router-dom";
-import { LuUpload, LuDownload } from "react-icons/lu";
+import { LuUpload, LuDownload, LuArrowLeftRight } from "react-icons/lu";
 import Threads from "../animations/Threads";
 import DarkVeil from "../animations/DarkVeil";
 import { useDarkMode } from "../context/DarkModeContext";
@@ -53,10 +53,10 @@ const Home = () => {
             src={darkMode ? darkModeLogo : lightModeLogo}
             alt="main logo"
             className="lg:h-28 h-24 mb-2"
-            initial={{ opacity: 0, y: 40 }} // start hidden & pushed down
-            animate={{ opacity: 1, y: 0 }} // fade in & move up
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{
-              duration: 0.8, // smoothness
+              duration: 0.8,
               ease: "easeInOut",
             }}
           />
@@ -64,7 +64,6 @@ const Home = () => {
 
         <TypeAnimation
           sequence={[
-            // Same substring at the start will only be typed once, initially
             "Now with P2P File Sharing! - Send files directly",
             1500,
             "You can send files directly by using P2P share",
@@ -88,39 +87,61 @@ const Home = () => {
           ]}
           speed={80}
           repeat={Infinity}
-          className="relative text-blue-500 dark:text-neutral-300 text-lg lg:text-2xl mb-11 mt-4"
+          className="relative text-blue-500 dark:text-neutral-300 text-lg lg:text-2xl mb-11 mt-4 text-center px-2"
         />
 
         <motion.div
-          className="flex flex-col items-center justify-center md:flex-row gap-6 font-medium text-xl"
+          className="flex flex-col items-center justify-center sm:flex-row flex-wrap gap-4 sm:gap-5 font-medium text-xl w-full max-w-3xl"
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{
             duration: 0.8,
             ease: "easeInOut",
-            delay: 0.4, // so it fades in right after the logo
+            delay: 0.4,
           }}
         >
+          {/* Upload Button */}
           <button
             onClick={() => navigate("/upload")}
-            className="glass-card interactive flex items-center justify-around dark:rounded-4xl  px-8 py-3 dark:py-4 w-60 text-center border-2 border-blue-500 text-blue-500 bg-white rounded-lg shadow-md 
+            className="glass-card interactive flex items-center gap-3 dark:rounded-full px-7 py-3 dark:py-3.5 whitespace-nowrap border-2 border-blue-500 text-blue-500 bg-white rounded-xl shadow-md
              hover:bg-blue-500 hover:text-white hover:shadow-lg/30 hover:scale-105 cursor-pointer relative
              transition !duration-300"
           >
-            <span className="w-40">Upload File</span>
-            <LuUpload className="w-5 h-5" strokeWidth={2.5} />
+            <LuUpload className="w-5 h-5 flex-shrink-0" strokeWidth={2.5} />
+            <span>Upload File</span>
           </button>
 
+          {/* Download Button */}
           <button
             onClick={() => navigate("/download")}
-            className="flex items-center justify-around px-8 py-3 dark:py-4 gap-2 dark:rounded-4xl w-60 text-center  bg-blue-500 dark:bg-blue-600 dark:hover:bg-blue-800 text-white rounded-lg shadow-md 
+            className="flex items-center gap-3 px-7 py-3 dark:py-3.5 dark:rounded-full whitespace-nowrap bg-blue-500 dark:bg-blue-600 dark:hover:bg-blue-800 text-white rounded-xl shadow-md
              hover:bg-blue-600 hover:shadow-lg/30 hover:scale-105 cursor-pointer relative
              transition !duration-300"
           >
-            <span className="w-40">Download File</span>
-            <LuDownload className="w-5 h-5" strokeWidth={2.5} />
+            <LuDownload className="w-5 h-5 flex-shrink-0" strokeWidth={2.5} />
+            <span>Download File</span>
+          </button>
+
+          {/* P2P Share Button */}
+          <button
+            onClick={() => navigate("/p2p-share")}
+            className="p2p-btn flex items-center gap-3 px-7 py-3 dark:py-3.5 dark:rounded-full whitespace-nowrap rounded-xl shadow-md
+             hover:scale-105 cursor-pointer relative transition !duration-300"
+          >
+            <LuArrowLeftRight className="w-5 h-5 flex-shrink-0" strokeWidth={2.5} />
+            <span>P2P Share</span>
           </button>
         </motion.div>
+
+        {/* P2P feature hint */}
+        <motion.p
+          className="mt-5 text-xs sm:text-sm text-neutral-400 dark:text-neutral-500 font-medium tracking-wide"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 1 }}
+        >
+          ✦ P2P Share sends files directly — no server, no wait
+        </motion.p>
       </div>
     </>
   );

@@ -20,7 +20,7 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="glass-card flex relative dark:absolute dark:top-10 dark:left-1/2 dark:-translate-x-1/2 dark:w-9/10 dark:z-40 dark:rounded-full lg:dark:px-12 dark:px-4 justify-between items-center px-8 py-6 bg-neutral-900">
+      <nav className="glass-card flex relative dark:absolute dark:top-10 dark:left-1/2 dark:-translate-x-1/2 dark:w-9/10 dark:z-40 dark:rounded-full lg:dark:px-12 dark:px-4 justify-between items-center px-8 py-4 bg-neutral-900">
         {/* LOGO section */}
         <div
           className="text-blue-500 font-bold text-6xl"
@@ -101,7 +101,7 @@ const Navbar = () => {
         className={`fixed top-0 bottom-0 w-64 bg-neutral-900 glass-card shadow-2xl flex flex-col px-8 py-6 z-[70] md:hidden transform transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
-        style={{ right: 0, left: "auto" }} // This guarantees it stays on the right in Dark Mode
+        style={{ right: 0, left: "auto" }}
       >
         {/* CLOSE BUTTON */}
         <div className="flex justify-end mb-8">
