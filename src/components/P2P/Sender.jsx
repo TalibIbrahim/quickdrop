@@ -115,7 +115,7 @@ const Sender = ({ onBack }) => {
     // 5. Chunking Logic
     // We can't send large files (1Gb+) all at once. So, we have to create chunks of data.
 
-    const CHUNK_SIZE = 32 * 1024; //32KB
+    const CHUNK_SIZE = 256 * 1024; // 256KB
     let offset = 0;
 
     const reader = new FileReader(); // web interface to read files
@@ -138,12 +138,12 @@ const Sender = ({ onBack }) => {
     };
 
     const readNextChunk = async () => {
-      // Pause if the WebRTC buffer exceeds 1MB to prevent crashing on large files
+      // Pause if the WebRTC buffer exceeds 8MB to prevent crashing on large files
       while (
         conn.dataChannel &&
-        conn.dataChannel.bufferedAmount > 1024 * 1024
+        conn.dataChannel.bufferedAmount > 8 * 1024 * 1024
       ) {
-        await new Promise((resolve) => setTimeout(resolve, 50));
+        await new Promise((resolve) => setTimeout(resolve, 5));
       }
 
       const slice = file.slice(offset, offset + CHUNK_SIZE);
