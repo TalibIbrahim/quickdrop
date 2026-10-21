@@ -3,6 +3,7 @@ import Peer from "peerjs";
 import axios from "axios";
 import { Oval } from "react-loader-spinner";
 import { FiCopy, FiCheckCircle, FiUploadCloud, FiFile } from "react-icons/fi";
+import { sendFile as sendP2PFile } from "./transfer";
 
 const Sender = ({ onBack }) => {
   const [peer, setPeer] = useState(null);
@@ -97,60 +98,22 @@ const Sender = ({ onBack }) => {
     }; // closes all active connections, as well as connections to the server. Also destroys the peer.
   }, []);
 
-  const sendFile = () => {
+  const sendFile = async () => {
     if (!conn || !file) {
       return;
     }
 
     setStatus(`Sending ${file.name}...`);
 
-    // 4. Send metadata first.
-    conn.send({
-      type: "metadata",
-      fileName: file.name,
-      fileSize: file.size,
-      fileType: file.type,
-    });
-
-    // 5. Chunking Logic
-    // We can't send large files (1Gb+) all at once. So, we have to create chunks of data.
-
-    const CHUNK_SIZE = 256 * 1024; // 256KB
-    let offset = 0;
-
-    const reader = new FileReader(); // web interface to read files
-
-    reader.onload = async (e) => {
-      conn.send({ type: "chunk", data: e.target.result });
-      offset += e.target.result.byteLength;
-
-      // update progress
-      setProgress(Math.round((offset / file.size) * 100));
-
-      if (offset < file.size) {
-        await readNextChunk();
-      } else {
-        conn.send({ type: "end" });
-        setProgress(100);
-
-        setStatus("Sent Successfully!");
-      }
-    };
-
-    const readNextChunk = async () => {
-      // Pause if the WebRTC buffer exceeds 8MB to prevent crashing on large files
-      while (
-        conn.dataChannel &&
-        conn.dataChannel.bufferedAmount > 8 * 1024 * 1024
-      ) {
-        await new Promise((resolve) => setTimeout(resolve, 5));
-      }
-
-      const slice = file.slice(offset, offset + CHUNK_SIZE);
-      reader.readAsArrayBuffer(slice);
-    };
-
-    readNextChunk();
+    // 4. Send metadata, then the file in chunks (see transfer.js)
+    try {
+      await sendP2PFile(conn, file, setProgress);
+      setProgress(100);
+      setStatus("Sent Successfully!");
+    } catch (err) {
+      console.error("Send failed:", err);
+      setStatus("Transfer interrupted. Receiver disconnected.");
+    }
   };
 
   const handleCopy = () => {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { FiCopy, FiTrash2, FiCheckCircle } from "react-icons/fi";
 import { LuUpload } from "react-icons/lu";
 import QRCode from "react-qr-code";
@@ -6,6 +6,25 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import ExpiryTimer from "./UI/ExpiryTimer";
 import { Oval } from "react-loader-spinner";
+
+// Cloudinary FREE plan per-file limits (Settings -> Account -> Usage limits)
+const MB = 1024 * 1024;
+const FREE_PLAN_LIMITS = { image: 10 * MB, raw: 10 * MB, video: 100 * MB };
+const MEDIA_EXTENSIONS =
+  /\.(mp4|mov|m4v|webm|mkv|avi|wmv|flv|3gp|mpeg|mpg|mp3|wav|aac|m4a|ogg|oga|flac|opus|wma)$/i;
+
+const UPLOAD_CONCURRENCY = 3; // files uploaded at the same time
+const SIGNATURE_MAX_AGE = 45 * 60 * 1000; // Cloudinary signatures are valid for 1 hour
+
+// Which Cloudinary resource type a file ends up as (only video/audio get the 100MB limit)
+const getLimitType = (file) => {
+  if (file.type === "application/pdf") return "raw"; // we force PDFs to raw below
+  if (file.type.startsWith("video/") || file.type.startsWith("audio/"))
+    return "video";
+  if (!file.type && MEDIA_EXTENSIONS.test(file.name)) return "video";
+  if (file.type.startsWith("image/")) return "image";
+  return "raw";
+};
 
 const UploadPage = () => {
   const [selectedFiles, setSelectedFiles] = useState([]); // Store array of files
@@ -22,9 +41,15 @@ const UploadPage = () => {
   const [currentFileIndex, setCurrentFileIndex] = useState(0);
   const [uploadProgress, setUploadProgress] = useState(0);
 
+  // Upload signature, fetched as soon as files are picked (this also wakes the backend up)
+  const signatureRef = useRef(null); // { promise, fetchedAt }
+
   // Upload single file. Can upload both single and multiple
-  const uploadSingleFile = async (file, cloudName, formDataBase) => {
-    const CHUNK_SIZE = 5 * 1024 * 1024;
+  // onProgress receives how many bytes of THIS file have been uploaded so far
+  const uploadSingleFile = async (file, cloudName, formDataBase, onProgress) => {
+    // Cloudinary chunks must be at least 5MB. The free plan caps images/raw at 10MB, so only
+    // video/audio (up to 100MB) is ever chunked - 20MB chunks keep that to 5 requests max.
+    const CHUNK_SIZE = 20 * 1024 * 1024;
     const totalSize = file.size;
 
     // because of how cloudinary treats pdfs, we FORCE our pdf upload to send the file as 'raw'
@@ -33,7 +58,7 @@ const UploadPage = () => {
     const resourceType = isPDF ? "raw" : "auto";
 
     // if small file, direct Upload
-    if (totalSize < 6 * 1024 * 1024) {
+    if (totalSize <= CHUNK_SIZE) {
       const formData = new FormData();
       for (const [key, value] of formDataBase.entries()) {
         formData.append(key, value);
@@ -45,9 +70,7 @@ const UploadPage = () => {
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
-          onUploadProgress: (e) => {
-            setUploadProgress(Math.round((e.loaded * 100) / e.total));
-          },
+          onUploadProgress: (e) => onProgress(Math.min(e.loaded, totalSize)),
         },
       );
     }
@@ -64,23 +87,23 @@ const UploadPage = () => {
       for (const [key, value] of formDataBase.entries()) {
         formData.append(key, value);
       }
-      formData.append("file", chunk);
+      // pass the real name, otherwise Cloudinary records it as "blob" (used for names in ZIPs)
+      formData.append("file", chunk, file.name);
 
       const headers = {
         "X-Unique-Upload-Id": uniqueUploadId,
         "Content-Range": `bytes ${start}-${end - 1}/${totalSize}`,
       };
 
+      const chunkStart = start;
+      const chunkLength = end - start;
       const res = await axios.post(
         `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
         formData,
         {
           headers,
-          onUploadProgress: (e) => {
-            const totalUploaded = start + e.loaded;
-            const percent = Math.round((totalUploaded * 100) / totalSize);
-            setUploadProgress(percent);
-          },
+          onUploadProgress: (e) =>
+            onProgress(chunkStart + Math.min(e.loaded, chunkLength)),
         },
       );
 
@@ -90,6 +113,33 @@ const UploadPage = () => {
     }
 
     return finalResponse;
+  };
+
+  // Get (or reuse) an upload signature from our backend
+  const getSignature = (forceNew = false) => {
+    const cached = signatureRef.current;
+    if (
+      !forceNew &&
+      cached &&
+      Date.now() - cached.fetchedAt < SIGNATURE_MAX_AGE
+    ) {
+      return cached.promise;
+    }
+
+    const promise = fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/api/files/sign-upload`,
+      { method: "POST" },
+    ).then((res) => {
+      if (!res.ok) throw new Error("Failed to get upload permission");
+      return res.json();
+    });
+
+    signatureRef.current = { promise, fetchedAt: Date.now() };
+    promise.catch(() => {
+      // don't keep a failed request around, the upload click will try again
+      if (signatureRef.current?.promise === promise) signatureRef.current = null;
+    });
+    return promise;
   };
 
   const processFiles = (fileList) => {
@@ -116,7 +166,20 @@ const UploadPage = () => {
       return;
     }
 
+    // Cloudinary's free plan rejects bigger files, so stop here instead of after uploading them
+    const tooBig = filesArray.find(
+      (f) => f.size > FREE_PLAN_LIMITS[getLimitType(f)],
+    );
+    if (tooBig) {
+      const limitMB = FREE_PLAN_LIMITS[getLimitType(tooBig)] / MB;
+      setError(
+        `"${tooBig.name}" is too large. Max ${limitMB}MB for this file type (videos/audio: 100MB).`,
+      );
+      return;
+    }
+
     setSelectedFiles(filesArray);
+    getSignature().catch(() => {}); // warm up, so it's ready when "Start Upload" is clicked
   };
 
   const handleFileChange = (e) => {
@@ -144,16 +207,14 @@ const UploadPage = () => {
     setCurrentFileIndex(0);
 
     try {
-      // 1. Get Signature (Once for the session)
-      const signRes = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/files/sign-upload`,
-        { method: "POST" },
-      );
-
-      if (!signRes.ok) throw new Error("Failed to get upload permission");
-
-      const { signature, timestamp, cloudName, apiKey, folder } =
-        await signRes.json();
+      // 1. Get Signature (usually already fetched when the files were picked)
+      let signed;
+      try {
+        signed = await getSignature();
+      } catch {
+        signed = await getSignature(true); // the early request failed, try once more
+      }
+      const { signature, timestamp, cloudName, apiKey, folder } = signed;
 
       const formDataBase = new FormData();
       formDataBase.append("api_key", apiKey);
@@ -161,25 +222,61 @@ const UploadPage = () => {
       formDataBase.append("signature", signature);
       formDataBase.append("folder", folder);
 
-      // 2. Upload Files Individually
-      const uploadedFilesData = [];
+      // 2. Upload Files, a few at the same time
+      const uploadedFilesData = new Array(selectedFiles.length); // keeps the original order
+      const totalBytes = selectedFiles.reduce((acc, f) => acc + f.size, 0) || 1;
+      const loadedBytes = new Array(selectedFiles.length).fill(0);
+      let completed = 0;
+      let nextIndex = 0;
 
-      for (let i = 0; i < selectedFiles.length; i++) {
-        setCurrentFileIndex(i + 1); // Update UI to show "Uploading 1 of X"
-        setUploadProgress(0);
+      // one combined progress bar for all files
+      const updateProgress = () => {
+        const loaded = loadedBytes.reduce((acc, n) => acc + n, 0);
+        setUploadProgress(
+          Math.min(100, Math.round((loaded * 100) / totalBytes)),
+        );
+      };
 
-        const file = selectedFiles[i];
-        const res = await uploadSingleFile(file, cloudName, formDataBase);
-        const data = res.data;
+      const worker = async () => {
+        while (nextIndex < selectedFiles.length) {
+          const i = nextIndex++;
+          const file = selectedFiles[i];
 
-        uploadedFilesData.push({
-          fileName: file.name,
-          fileURL: data.secure_url,
-          publicId: data.public_id,
-          resourceType: data.resource_type,
-          size: data.bytes,
-        });
-      }
+          const res = await uploadSingleFile(
+            file,
+            cloudName,
+            formDataBase,
+            (bytes) => {
+              loadedBytes[i] = bytes;
+              updateProgress();
+            },
+          );
+          const data = res.data;
+
+          uploadedFilesData[i] = {
+            fileName: file.name,
+            fileURL: data.secure_url,
+            publicId: data.public_id,
+            resourceType: data.resource_type,
+            size: data.bytes,
+          };
+
+          loadedBytes[i] = file.size;
+          completed++;
+          // Update UI to show "Uploading 2 of X"
+          setCurrentFileIndex(Math.min(completed + 1, selectedFiles.length));
+          updateProgress();
+        }
+      };
+
+      setCurrentFileIndex(1);
+      await Promise.all(
+        Array.from(
+          { length: Math.min(UPLOAD_CONCURRENCY, selectedFiles.length) },
+          worker,
+        ),
+      );
+
 
       // 3. Save Metadata (Send the ARRAY of files)
       const saveRes = await fetch(

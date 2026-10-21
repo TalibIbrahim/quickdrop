@@ -6,6 +6,19 @@ import ErrorCard from "./UI/ErrorCard";
 import JSZip from "jszip";
 import ExpiryTimer from "./UI/ExpiryTimer";
 
+// Files above this size skip the in-memory (Blob) download and go straight to the browser
+const BUFFERED_DOWNLOAD_MAX = 10 * 1024 * 1024;
+
+// The URL responds with "Content-Disposition: attachment", so this downloads without leaving the page
+const startBrowserDownload = (url) => {
+  const a = document.createElement("a");
+  a.style.display = "none";
+  a.href = url;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+};
+
 const DownloadFile = () => {
   const { fileid } = useParams();
   const [fileGroup, setFileGroup] = useState(null); // Changed to handle group data
@@ -26,7 +39,15 @@ const DownloadFile = () => {
       if (fileGroup.files.length === 1) {
         const fileData = fileGroup.files[0];
 
-        // Images/Videos/PDFs - Blob download
+        // Direct download: the browser streams it with its own progress bar and nothing is held
+        // in memory. Used when Cloudinary can keep the exact name, or the file is too big to buffer.
+        if (fileData.exactName || fileData.size > BUFFERED_DOWNLOAD_MAX) {
+          startBrowserDownload(fileData.fileURL);
+          setDownloading(false);
+          return;
+        }
+
+        // Small files with special characters in the name - Blob download keeps the exact name
         try {
           const res = await fetch(fileData.fileURL);
           if (!res.ok) throw new Error("Network error");
@@ -54,21 +75,36 @@ const DownloadFile = () => {
         return;
       }
 
-      // --- SCENARIO 2: Multiple Files (ZIP) ---
+      // --- Multiple Files (ZIP) ---
+      // Zipped in the browser: files come in parallel from Cloudinary's CDN, which is ~4x faster
+      // than Cloudinary's own on-the-fly ZIP. That one (zipURL) is kept as a backup.
       const zip = new JSZip();
       const folderName = `QuickDrop_${fileGroup.code}`;
       const folder = zip.folder(folderName);
       let completed = 0;
+      let failed = 0;
+
+      // two files with the same name would overwrite each other in the zip: "a.png", "a-1.png"
+      const usedNames = new Set();
+      const uniqueName = (name) => {
+        let candidate = name;
+        for (let n = 1; usedNames.has(candidate); n++) {
+          candidate = name.replace(/(\.[^.]*)?$/, `-${n}$1`);
+        }
+        usedNames.add(candidate);
+        return candidate;
+      };
+      const zipNames = fileGroup.files.map((file) => uniqueName(file.fileName));
 
       // Download all files and add to zip
       await Promise.all(
-        fileGroup.files.map(async (file) => {
+        fileGroup.files.map(async (file, i) => {
           try {
             const response = await fetch(file.fileURL);
             if (!response.ok)
               throw new Error(`Failed to fetch ${file.fileName}`);
             const blob = await response.blob();
-            folder.file(file.fileName, blob);
+            folder.file(zipNames[i], blob);
 
             completed++; //increment count of files completed
             setProgressText(
@@ -76,13 +112,20 @@ const DownloadFile = () => {
             );
           } catch (err) {
             console.error(`Error downloading ${file.fileName}`, err);
+            failed++;
             folder.file(
-              `${file.fileName}_error.txt`,
+              `${zipNames[i]}_error.txt`,
               "Could not download this file.",
             );
           }
         }),
       );
+
+      // Some files couldn't be fetched by the browser - let Cloudinary build the ZIP instead
+      if (failed > 0 && fileGroup.zipURL) {
+        startBrowserDownload(fileGroup.zipURL);
+        return;
+      }
 
       setProgressText("Generating Zip...");
       const content = await zip.generateAsync({ type: "blob" });
@@ -97,7 +140,11 @@ const DownloadFile = () => {
       document.body.removeChild(a);
     } catch (err) {
       console.error(err);
-      alert("Error downloading files");
+      if (fileGroup.files.length > 1 && fileGroup.zipURL) {
+        startBrowserDownload(fileGroup.zipURL); // e.g. browser ran out of memory while zipping
+      } else {
+        alert("Error downloading files");
+      }
     } finally {
       setDownloading(false);
       setProgressText("");

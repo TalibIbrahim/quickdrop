@@ -4,6 +4,12 @@ import { Peer } from "peerjs";
 import { generateRandomUser } from "./nameGenerator";
 import { Oval } from "react-loader-spinner";
 import { FiCheckCircle, FiFile } from "react-icons/fi";
+import {
+  P2P_CONNECTION_OPTIONS,
+  createFileReceiver,
+  saveBlob,
+  sendFile as sendP2PFile,
+} from "./transfer";
 
 const LocalRadar = ({ onBack }) => {
   const [me, setMe] = useState(null);
@@ -126,43 +132,28 @@ const LocalRadar = ({ onBack }) => {
     // --- RECEIVE FILES (The Receiver Logic) ---
 
     peer.on("connection", (conn) => {
-      let receivedSize = 0;
-      let buffer = [];
-      let metadata = {};
-
       conn.on("open", () => {
         setIsTransferring(true);
         setTransferMessage("Incoming connection...");
       });
 
-      conn.on("data", (data) => {
-        if (data.type === "metadata") {
-          metadata = data;
-          buffer = [];
-          receivedSize = 0;
-          setTransferMessage(`Receiving ${data.fileName}...`);
-        } else if (data.type === "chunk") {
-          buffer.push(data.data);
-          receivedSize += data.data.byteLength;
-          setTransferProgress(
-            Math.round((receivedSize / metadata.fileSize) * 100),
-          );
-        } else if (data.type === "end") {
-          // Reassemble and trigger download
-          const blob = new Blob(buffer, { type: metadata.fileType });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = metadata.fileName;
-          a.click();
+      conn.on(
+        "data",
+        createFileReceiver({
+          onMetadata: (meta) => setTransferMessage(`Receiving ${meta.fileName}...`),
+          onProgress: setTransferProgress,
+          onComplete: (blob, meta) => {
+            // Reassemble and trigger download
+            saveBlob(blob, meta.fileName);
 
-          setTransferMessage("File Received!");
-          setTimeout(() => {
-            setIsTransferring(false);
-            setTransferProgress(0);
-          }, 3000);
-        }
-      });
+            setTransferMessage("File Received!");
+            setTimeout(() => {
+              setIsTransferring(false);
+              setTransferProgress(0);
+            }, 3000);
+          },
+        }),
+      );
     });
 
     // Cleanup on unmount
@@ -186,56 +177,26 @@ const LocalRadar = ({ onBack }) => {
     setTransferMessage(`Connecting to send ${file.name}...`);
 
     // Connect directly to the clicked peer
-    const conn = peerRef.current.connect(targetPeerIdRef.current, {
-      reliable: true,
-    });
+    const conn = peerRef.current.connect(
+      targetPeerIdRef.current,
+      P2P_CONNECTION_OPTIONS,
+    );
 
-    conn.on("open", () => {
+    conn.on("open", async () => {
       setTransferMessage(`Sending ${file.name}...`);
 
-      // Send Metadata
-      conn.send({
-        type: "metadata",
-        fileName: file.name,
-        fileSize: file.size,
-        fileType: file.type,
-      });
-
-      // Chunking Logic
-      const CHUNK_SIZE = 32 * 1024;
-      let offset = 0;
-      const reader = new FileReader();
-
-      reader.onload = async (event) => {
-        conn.send({ type: "chunk", data: event.target.result });
-        offset += event.target.result.byteLength;
-        setTransferProgress(Math.round((offset / file.size) * 100));
-
-        if (offset < file.size) {
-          readNextChunk();
-        } else {
-          conn.send({ type: "end" });
-          setTransferMessage("Sent Successfully!");
-          setTimeout(() => {
-            setIsTransferring(false);
-            setTransferProgress(0);
-          }, 3000);
-        }
-      };
-
-      const readNextChunk = async () => {
-        // Buffer control to prevent memory crash on large files
-        while (
-          conn.dataChannel &&
-          conn.dataChannel.bufferedAmount > 1024 * 1024
-        ) {
-          await new Promise((resolve) => setTimeout(resolve, 50));
-        }
-        const slice = file.slice(offset, offset + CHUNK_SIZE);
-        reader.readAsArrayBuffer(slice);
-      };
-
-      readNextChunk();
+      // Send metadata, then the file in chunks (see transfer.js)
+      try {
+        await sendP2PFile(conn, file, setTransferProgress);
+        setTransferMessage("Sent Successfully!");
+      } catch (err) {
+        console.error("Send failed:", err);
+        setTransferMessage("Transfer interrupted!");
+      }
+      setTimeout(() => {
+        setIsTransferring(false);
+        setTransferProgress(0);
+      }, 3000);
     });
 
     conn.on("error", (err) => {

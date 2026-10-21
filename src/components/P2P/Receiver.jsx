@@ -3,6 +3,7 @@ import Peer from "peerjs";
 import axios from "axios";
 import { Oval } from "react-loader-spinner";
 import { FiCheckCircle, FiAlertCircle } from "react-icons/fi";
+import { P2P_CONNECTION_OPTIONS, createFileReceiver, saveBlob } from "./transfer";
 
 const Receiver = () => {
   const [code, setCode] = useState("");
@@ -74,7 +75,7 @@ const Receiver = () => {
       peerRef.current = peer;
 
       peer.on("open", () => {
-        const conn = peer.connect(hostPeerID, { reliable: true });
+        const conn = peer.connect(hostPeerID, P2P_CONNECTION_OPTIONS);
 
         console.log("Executing setup connection");
         setupConnection(conn);
@@ -91,9 +92,6 @@ const Receiver = () => {
   };
 
   const setupConnection = (conn) => {
-    let receivedSize = 0;
-    let buffer = []; // array of chunks that will be reassembled to form the full file later
-    let metadata = {};
     // console.log("INSIDE setup connection");
 
     conn.on("open", () => {
@@ -112,36 +110,29 @@ const Receiver = () => {
       setStatus("Connection closed.");
     });
 
-    conn.on("data", (data) => {
-      if (data.type === "metadata") {
-        metadata = data;
-        buffer = [];
-        receivedSize = 0;
-        setIsDownloading(true);
-        setStatus(`Receiving ${data.fileName}...`);
-      } else if (data.type === "chunk") {
-        buffer.push(data.data); // push chunks to our file transfer buffer
-        receivedSize += data.data.byteLength;
-        setProgress(Math.round((receivedSize / metadata.fileSize) * 100)); //current divided by total
-      } else if (data.type === "end") {
-        // 3. reassemble and download
-        const blob = new Blob(buffer, { type: metadata.fileType });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = metadata.fileName;
-        a.click();
+    conn.on(
+      "data",
+      createFileReceiver({
+        onMetadata: (meta) => {
+          setIsDownloading(true);
+          setStatus(`Receiving ${meta.fileName}...`);
+        },
+        onProgress: setProgress,
+        onComplete: (blob, meta) => {
+          // 3. reassemble and download
+          saveBlob(blob, meta.fileName);
 
-        setStatus("File Received!");
-        setIsDownloading(false);
-        setProgress(0);
-        setTimeout(() => {
-          setStatus((prev) =>
-            prev === "File Received!" ? "Waiting for next file..." : prev,
-          );
-        }, 3000);
-      }
-    });
+          setStatus("File Received!");
+          setIsDownloading(false);
+          setProgress(0);
+          setTimeout(() => {
+            setStatus((prev) =>
+              prev === "File Received!" ? "Waiting for next file..." : prev,
+            );
+          }, 3000);
+        },
+      }),
+    );
   };
 
   // badge styling based on status string content
