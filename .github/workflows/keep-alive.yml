@@ -1,0 +1,25 @@
+name: Keep Render services awake
+
+on:
+  schedule:
+    # Every 10 min from 04:00 to 14:50 UTC (09:00–19:50 PKT). Pinging is limited to
+    # this window because two free Render services awake 24/7 would exceed the
+    # 750 instance-hours/month shared by the workspace.
+    - cron: "*/10 4-14 * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ping backend
+        env:
+          URL: ${{ vars.BACKEND_URL }}
+        run: curl -fsS --max-time 60 --retry 2 "${URL%/}/health"
+
+      - name: Ping signalling server
+        if: always()
+        env:
+          URL: ${{ vars.SIGNALLING_URL }}
+        run: curl -fsS --max-time 60 --retry 2 "${URL%/}/health"
